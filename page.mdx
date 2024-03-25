@@ -2,15 +2,14 @@
 title: Collaborative Board
 description: A collaborative whiteboard app built with React, Socket.io, and Node.js.
 publishedAt: 2021-08-01
-mainVideo: 'https://www.youtube.com/embed/1QIv3wZ8y9E'
+mainVideo: 'https://res.cloudinary.com/db4ddmnhg/video/upload/v1711250181/projects/chess/rapidsave.com_i_created_a_realtime_multiplayer_3d_chess_game-0gs6ouqa9soa1_k6qzuo.mp4'
 ---
-
 
 ## Visuals
 
 I used Three.js to create the 3d chessboard and used a 2d array to represent the board. I used a raycaster to detect which square the user clicked on and used that to determine which piece to move. I also used raycasting to detect which square the piece was hovering over and used that to determine if the move was valid.
 
-Instead of copying the same functionality, textures, and animations to each piece I created a wrapper component that accepts a mesh as a child.
+Instead of copying the same functionality, textures, and animations to each piece I created a wrapper component that accepts a mesh as a child. testing lol yaaa
 
 <Sandpack
       files={{
@@ -163,7 +162,7 @@ a {
 import * as THREE from 'three'
 import { useRef, useReducer, useMemo } from 'react'
 import { Canvas, useFrame } from '@react-three/fiber'
-import { MeshTransmissionMaterial, Environment, Lightformer } from '@react-three/drei'
+import { useGLTF, MeshTransmissionMaterial, Environment, Lightformer } from '@react-three/drei'
 import { CuboidCollider, BallCollider, Physics, RigidBody } from '@react-three/rapier'
 import { EffectComposer, N8AO } from '@react-three/postprocessing'
 import { easing } from 'maath'
@@ -261,13 +260,13 @@ function Pointer({ vec = new THREE.Vector3() }) {
 
 function Model({ children, color = 'white', roughness = 0, ...props }) {
   const ref = useRef()
+  const { nodes, materials } = useGLTF('https://res.cloudinary.com/db4ddmnhg/image/upload/v1711278237/projects/chess/x2e18bfhmwxmfyvw64oi.glb')
   useFrame((state, delta) => {
     easing.dampC(ref.current.material.color, color, 0.2, delta)
   })
   return (
-    <mesh ref={ref} castShadow receiveShadow scale={1}>
-      <cylinderGeometry args={[0.5, 0.5, 1, 32]} />
-      <meshStandardMaterial metalness={0.2} roughness={roughness} />
+    <mesh ref={ref} castShadow receiveShadow scale={10} geometry={nodes.connector.geometry}>
+      <meshStandardMaterial metalness={0.2} roughness={roughness} map={materials.base.map} />
       {children}
     </mesh>
   )
@@ -291,19 +290,3 @@ function Model({ children, color = 'white', roughness = 0, ...props }) {
   lines={[5, 38]}
   link="https://github.com/joshwrn/collaborative-board/blob/main/src/components/ContextMenu/ContextMenu.tsx"
 />
-
-export default function MdxPage({ children }) {
-  return (
-    <Layout
-      project={{
-        title: 'Collaborative Board',
-        description:
-          'A collaborative whiteboard app built with React, Socket.io, and Node.js.',
-        publishedAt: new Date('2021-08-01'),
-        mainVideo: 'https://www.youtube.com/embed/1QIv3wZ8y9E',
-      }}
-    >
-      {children}
-    </Layout>
-  )
-}
