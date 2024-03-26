@@ -1,17 +1,30 @@
 ---
-title: Collaborative Board
-description: A collaborative whiteboard app built with React, Socket.io, and Node.js.
+title: Chess
+description: A 3d multiplayer chess game built with Next.js, Three.js and Socket.io.
+category: project
+tags: ['3d', 'socket.io', 'three.js', 'chess']
 publishedAt: 2021-08-01
 mainVideo: 'https://res.cloudinary.com/db4ddmnhg/video/upload/v1711250181/projects/chess/rapidsave.com_i_created_a_realtime_multiplayer_3d_chess_game-0gs6ouqa9soa1_k6qzuo.mp4'
 ---
 
 ## Visuals
 
-I used Three.js to create the 3d chessboard and used a 2d array to represent the board. I used a raycaster to detect which square the user clicked on and used that to determine which piece to move. I also used raycasting to detect which square the piece was hovering over and used that to determine if the move was valid.
+I used Three.js to create the 3d chessboard and used a 2d array to represent the board. I used a raycaster to detect which square the user clicked on and used that to determine which piece to move. I also used raycasting to detect which square the piece was hovering over and used that to determine if the move was valid. is true
 
 Instead of copying the same functionality, textures, and animations to each piece I created a wrapper component that accepts a mesh as a child. testing lol yaaa
 
 <Sandpack
+      dependencies={{
+    '@react-three/drei': '9.78.1',
+    '@react-three/fiber': '8.13.4',
+    '@react-three/postprocessing': '2.15.1',
+    '@react-three/rapier': '1.1.1',
+    '@types/three': '0.153.0',
+    react: '18.2.0',
+    'react-dom': '18.2.0',
+    'react-scripts': '5.0.1',
+    three: '0.154.0',
+  }}
       files={{
         'index.js': `import { createRoot } from 'react-dom/client'
 import './styles.css'
