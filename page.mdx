@@ -26,6 +26,8 @@ Instead of copying the same functionality, textures, and animations to each piec
     three: '0.154.0',
   }}
       files={{
+        'another.js': 'console.log("hello")',
+        'another.css': 'body { background: red; }',
         'index.js': `import { createRoot } from 'react-dom/client'
 import './styles.css'
 import { App } from './App'
@@ -292,14 +294,15 @@ function Model({ children, color = 'white', roughness = 0, ...props }) {
 
 ## Context Menu
 
-<CodeSnippet
+<GithubCodeSnippet
   lines={[5, 38]}
   link="https://github.com/joshwrn/collaborative-board/blob/main/src/components/ContextMenu/ContextMenu.tsx"
+  highlightedLines={[7, 20, [25, 35]]}
 />
 
 ---
 
-<CodeSnippet
+<GithubCodeSnippet
   lines={[5, 38]}
   link="https://github.com/joshwrn/collaborative-board/blob/main/src/components/ContextMenu/ContextMenu.tsx"
 />
