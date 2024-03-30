@@ -1,5 +1,5 @@
 ---
-title: Chess
+title: Page
 description: A 3d multiplayer chess game built with Next.js, Three.js and Socket.io.
 category: project
 tags: ['3d', 'socket.io', 'three.js', 'chess']
@@ -305,4 +305,44 @@ function Model({ children, color = 'white', roughness = 0, ...props }) {
 <GithubCodeSnippet
   lines={[5, 38]}
   link="https://github.com/joshwrn/collaborative-board/blob/main/src/components/ContextMenu/ContextMenu.tsx"
+/>
+
+---
+
+<CodeSnippet
+  codeLanguage="tsx"
+  title="ContextMenu.tsx"
+  code={`import { useAppStore } from '@/state/gen-state'
+import { useOutsideClick } from '@/utils/useOutsideClick'
+import { BsTrash3 as TrashIcon } from 'react-icons/bs'
+import { usePreventScroll } from '@/utils/usePreventScroll'
+import { useShallow } from 'zustand/react/shallow'
+
+export const ContextMenu: FC = () => {
+  const state = useAppStore(
+    useShallow((state) => ({
+      contextMenu: state.contextMenu,
+      setContextMenu: state.setContextMenu,
+      zoom: state.zoom,
+      pan: state.pan,
+    })),
+  )
+  const ref = React.useRef<HTMLDivElement>(null)
+  usePreventScroll({ enabled: state.contextMenu !== null })
+  useOutsideClick({ action: () => state.setContextMenu(null), providedRef: ref })
+  if (!state.contextMenu) return null
+  return (
+    <container
+      ref={ref}
+      className={styles.container}
+      style={{
+        left: state.contextMenu.position.x,
+        top: state.contextMenu.position.y,
+        transformOrigin: 'top left',
+      }}
+    >
+      <MenuItems />
+    </container>
+  )
+}`}
 />
