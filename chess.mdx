@@ -4,7 +4,7 @@ description: An online multiplayer 3D chess game built with React Three Fiber, S
 featured: true
 category: project
 tags: ['socket.io', 'three.js', 'chess']
-publishedAt: 2023-08-01
+publishedAt: 2024-08-01
 mainVideo: 'projects/chess/chess-main-video'
 demo: 'https://chess-in-3d.herokuapp.com/'
 repo: 'https://github.com/joshwrn/3d-chess'
@@ -12,15 +12,13 @@ repo: 'https://github.com/joshwrn/3d-chess'
 
 ## Motivation
 
-At this point in my life, I know myself pretty well. I knew if I set out to create a new board game from scratch it would end up taking me weeks or even months to finish. I decided I needed to recreate a game that already had it's rules set in stone. Chess was the obvious answer because it's straight forward, and logically easy to code.
-
-In recent years chess has had a resurgence in popularity with online chess leading the charge. I might suck at chess but I knew I could bring my own version of the game to the table.
+At this point in my life, I know myself pretty well. I knew if I set out to create a new board game from scratch it would end up taking me weeks or even months to finish. That's why I decided I to recreate a game instead. Chess was the obvious answer because it's straight forward, and logically easy to code.
 
 ---
 
 ## Logic
 
-The first thing I did was create all of the logic for the board. Maybe I could have used some 3rd party library but where's the fun in that? Initially I thought this was a great time to experiment  with OOP (Object-Oriented Programming). Unfortunately, I quickly remembered why I like functional coding and rewrote most of what I had already done. Luckily, little work was lost because this was within the first few hours.
+The first thing I did was create all of the logic for the board. Maybe I could have used some 3rd party library but where's the fun in that? Plus I wanted to make sure I understood everything that was happening.
 
 By the end of the day I had a functioning (sort of) game of chess. I was confident that I was ready to move things to the world of *3D*.
 
@@ -32,7 +30,7 @@ By the end of the day I had a functioning (sort of) game of chess. I was confide
 
 ### The pieces
 
-Now that I was ready to porting things over to React Three Fiber I headed to [Sketchfab](https://sketchfab.com) and downloaded the 3D chess piece models. I have a very basic understanding of how to use Blender so I definitely couldn't model them myself. There was one minor setback -- all the pieces were together in one file. So before I could use them, I had to separate each piece into it's own `.glb` file and update their origin points. Updating the origin points was necessary so that each models `(0, 0)` point was at the bottom-center (aka the point that will be touching the board). 
+Now that I was ready to porting things over to Three.js I headed to [Sketchfab](https://sketchfab.com) and downloaded the 3D chess piece models. I have a very basic understanding of how to use Blender so I definitely couldn't model the pieces myself. However there was one minor setback to downloading them -- all the pieces were together in one file. So before I could use them, I had to separate each piece into it's own `.glb` file and update their origin points. Updating the origin points was necessary so that each models `(0, 0)` point was at the bottom-center (aka the point that will be touching the board). 
 
 <Sandpack
 customSetup={{dependencies: {
@@ -170,7 +168,7 @@ export default function App() {
 
 ### The Board
 
-The board itself was very easy to implement. I created it by mapping through an array and rendering 64 individual cubes. This way it was easy to check which cube the player has clicked on.
+The board itself was very easy to implement. I created it by mapping through an array and rendering 64 individual cubes. This way it was easy to check which cube the player had selected.
 
 <CodeSnippet
   title="Creating the board"
@@ -195,7 +193,7 @@ The board itself was very easy to implement. I created it by mapping through an 
 
 ### Making it Pretty
 
-Now that everything was working as intended I wanted to make everything a bit more polished. I love lighting effects so I used a red point light to mark the piece that is currently selected. It was functional and looked pretty nice.
+Now that everything was working as intended I wanted to make the experience a bit more polished. I love lighting effects so I used a red point light to mark the piece that was currently selected. It was functional and looked pretty nice.
 
 { /* {{ INSERT demo of light with on/off switch }} */}
 
@@ -220,24 +218,26 @@ Using React Spring I added animations to everything from moving the pieces to th
 
 ## Multiplayer
 
-[Socket.IO](https://socket.io/) was a technology that I hadn't used yet, so I was excited to try it out. Real-time interactions between users seemed really cool.
+I hadn't had the chance to use [Socket.IO](https://socket.io/) yet, so I was excited to try it out. Real-time interactions between users seemed really cool.
 
-It was actually easy to set it up because of Next.js's "pages router". All I needed to do was create one `socket.ts` file under `src/pages/api`. Sadly, with the new "app router" I'm not sure if it's still possible to use Socket.IO with Next.js. So take that into consideration if you're planning on using sockets. Using Socket.IO also means that you cannot use Vercel to deploy your site since it uses edge functions to serve the site instead of a dedicated server. I had to use Heroku to host the site but you could also use Fly.io or Render.
+It was actually easy to set it up because of Next.js's "pages router". All I needed to do was create one `socket.ts` file under `src/pages/api`. 
+
+> **WARNING:** Sadly, with the new "app router" I'm not sure if it's still possible to use Socket.IO with Next.js. So take that into consideration if you're planning on using sockets. Using Socket.IO also means that you cannot use Vercel to deploy since it uses edge functions to serve the site instead of a dedicated server. I had to use Heroku to host the site but you could also use Fly.io or Render.
 
 ### Events
 
-Obviously, I needed to allow players to join their own rooms unless I only wanted everyone playing together on one board. Otherwise things could be... chaotic. 
+Obviously, I needed to allow players to join their own rooms unless I only wanted everyone playing together on one board. If I did it like that, things could be... chaotic. 
 
 <GithubCodeSnippet
   link="https://github.com/joshwrn/3d-chess/blob/65b285289afa7891f1d39a33c4a6543de6e45ef6/src/server/joinRoom.ts"
   lines={[1, 20]}
 />
 
-I also created Socket.io events for making moves, player's camera position, fetching players in a room, and sending messages.
+I also created Socket.io events for making moves, moving the player's camera, fetching players in a room, and sending messages.
 
 ### State
 
-I opted to use [Zustand](https://docs.pmnd.rs/zustand/getting-started/introduction) for state management. It's listed on the R3F homepage as  "Bear necessities for state management in React." If you wanted a more atomic approach to state management you could use [Jotai](https://jotai.org/docs/introduction) or [Atom.io](https://atom.io.fyi).  
+I opted to use [Zustand](https://docs.pmnd.rs/zustand/getting-started/introduction) for state management. It's listed on the R3F homepage as "Bear necessities for state management in React." If you wanted a more atomic approach to state management you could use [Jotai](https://jotai.org/docs/introduction) or [Atom.io](https://atom.io.fyi).  
 
 One of the great things about Zustand  is the ability to get state outside of react. It's as simple as
 
