@@ -9,3 +9,97 @@ mainVideo: 'projects/recoil-devtools/recoil-devtools-main-video'
 demo: 'https://joshwrn.github.io/recoil-devtools/'
 repo: 'https://github.com/joshwrn/recoil-devtools'
 ---
+
+## Motivation
+
+One of the most important aspects of working on a large React application is being able to debug the state. Recoil is a great library for managing state in React applications, but it can be difficult to debug the state without a visual interface. That's why I created Recoil Devtools.
+
+## Getting the State
+
+Luckily, Recoil has an easy way to get the current state of all atoms/selectors. From there we can create an array from the nodes.
+
+<CodeSnippet  
+title="Creating an array of nodes from the Recoil snapshot"
+language="tsx"
+code={`const snapshot = useRecoilSnapshot()
+
+useMemo(() => {
+  const list = Array.from(snapshot.getNodes_UNSTABLE())
+  // Do something with the list
+}, [snapshot])
+
+snapshot.retain()`}
+  />
+
+## Creating a Recursive Tree
+
+Once we have the list of nodes, we need to map through each piece of state and create a tree. This tree will be recursive, meaning that it will continue to create nodes until it reaches a primitive value.
+
+For example `const state = [1, 2, 3]` would be represented as: 
+
+<CodeSnippet
+language="json"
+showLineNumbers={false}
+code={`state: [
+    1,
+    2,
+    3
+]`}
+/>
+
+We map through each item in the array and create a new node for each item. If the item is an array, we recursively call the function to create a new node. If the item is a primitive value, we display the value.
+
+Here's the code for handling arrays. I had to handle Sets, Maps, and Objects as well. But the concept is the same.
+
+<CodeSnippet  
+title="Creating an array of nodes from the Recoil snapshot"
+language="tsx"
+highlightedLines={[20, 36]}
+code={`const RecursiveTree: FC<{ contents: unknown; branchName: string }> = ({
+  contents,
+  branchName,
+}) => {
+  const [isOpen, toggleItemOpen] = useRecoilState(openItemsState)
+
+  const createTree = (branch: unknown, dir: string) => {
+    // handle array
+    if (branch instanceof Set || branch instanceof Map) {
+      branch = Array.from(branch)
+    }
+
+    if (branch instanceof Array) {
+      return (
+        <>
+          <Mark>[</Mark>
+          {branch.map((item: unknown, index: number) => {
+            return (
+              <Box border="gray" key={dir + index}>
+                {createTree(item, \`\${dir}/\${index}\`)}
+                {index < (branch as Array<unknown>).length - 1 && <Mark>,</Mark>}
+              </Box>
+            )
+          })}
+          <Mark>]</Mark>
+        </>
+      )
+    }
+
+    // non-object, non-array. aka is a "primitive"
+    return <Primitive data={branch} />
+  }
+
+  return (
+    <span style={{ paddingLeft: \`12px\` }}>
+      {createTree(contents, branchName)}
+    </span>
+  )
+}
+
+export default RecursiveTree`}
+  />
+
+## Conclusion
+
+Recoil Devtools was a fun project to work on. It was a great way to learn more about Recoil. If you use Recoil in your projects, I highly recommend checking it out.
+  
+
