@@ -76,7 +76,7 @@ I also lined the canvas up in 3d space so that `0,0` on the 3d canvas would be t
 
 <CodeSnippet
 language="tsx"
-title="Converting 3d to 2d coordinates"
+title="Converting 3d board point to 2d canvas point"
 code={`export const CANVAS_TO_BOARD_RATIO = 20
 export const CANVAS_RESOLUTION = {
   width: 3000,
@@ -104,7 +104,7 @@ From there you just need to pass in a raycaster to get the point in 3d space bef
 
 <CodeSnippet
 language="tsx"
-title="Using a raycaster to get the 3d point on the canvas"
+title="Using a raycaster to get the point on the 3d canvas"
 code={`const MAX_DISTANCE_FROM_BOARD = 200
 
 const raycaster = new THREE.Raycaster(
@@ -250,7 +250,7 @@ code={`export const makeBrushStroke = (
 }`}
 />
 
-On the client side, I listen for the brush stroke event and draw the stroke on the canvas.
+On the client side, I listen for the brush stroke event and draw the stroke on the canvas. It is almost the same as the server code, but I check if the user id matches the current user before drawing the stroke.
 
 <CodeSnippet
 language="tsx"
