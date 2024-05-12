@@ -1,4 +1,4 @@
-{/* ---
+---
 title: React Dial
 description: A customizable dial component for React applications. The dial can be used to select a value within a range.
 featured: false
@@ -8,7 +8,7 @@ publishedAt: 2021-08-01
 mainVideo: 'lab/dial/dial-main-video.mp4'
 demo: 'https://joshwrn.github.io/react-dial/'
 repo: 'https://github.com/joshwrn/react-dial'
---- */}
+---
 
 ## Overview
 
@@ -20,12 +20,12 @@ I'm going to walk through the process of creating the React Dial component and e
 
 ## Setup
 
-There's two packages that I used to create the React Dial component. The first is [react-draggable](https://www.npmjs.com/package/react-draggable) which I used to handle dragging. The second is [resize-observer](https://www.npmjs.com/package/@react-hook/resize-observer) which I used to resize certain elements when the dial is resized.
+The only package we need to use for creating the Dial component is [react-draggable](https://www.npmjs.com/package/react-draggable) which I used to handle dragging.
 
 <CodeSnippet 
 showLineNumbers={false}
 language="bash"
-code={`npm install react-draggable @react-hook/resize-observe`}
+code={`npm install react-draggable`}
 />
 
 ---
@@ -42,8 +42,6 @@ This us the component in its most basic form. Just a couple divs and a little bi
     "react-dom": "18.2.0",
     "react-scripts": "5.0.1",
     "react-draggable": "4.4.6",
-    "styled-components": "6.1.11",
-    "@react-hook/resize-observer": "1.2.6"
   },
   devDependencies: {
     "@types/react": "18.2.38",
@@ -188,8 +186,6 @@ code={`<div
     "react-dom": "18.2.0",
     "react-scripts": "5.0.1",
     "react-draggable": "4.4.6",
-    "styled-components": "6.1.11",
-    "@react-hook/resize-observer": "1.2.6"
   },
   devDependencies: {
     "@types/react": "18.2.38",
@@ -319,7 +315,7 @@ html {
   height: 3.5%;
   min-width: 10px;
   min-height: 10px;
-  top: calc(100% - 8%);
+  top: calc(100% - 13%);
   border-radius: 50%;
   background: #0084ff;
   transition: box-shadow 0.5s;
@@ -445,9 +441,21 @@ code={`const getDegFromQuadrant = (
 
 ### Closest Point on the Dial
 
-Using basic trigonometry, we can calculate the angle between the center of the dial and the current position of the mouse or touch event. We can then convert this angle to degrees and update the state with the new value.
+Using basic trigonometry, we can get the closet point on the unit circle using the center of the dial and the current mouse position.
+
+After we get the mouse position and the center of the dial, we subtract the mouse position from the center point. `{ x: centerPoint.x - mouse.x, y: centerPoint.y - mouse.y }`.
+
+Next, we calculate the sine and cosine. `cos = point.x / Math.sqrt(Math.pow(point.x, 2) + Math.pow(point.y, 2))`. To get the sine, we do the same thing but with the y value.
+
+This is the formula to get the point.
 
 <Math block math="\left( \frac{x}{\sqrt{x^{2} + y^2}}, \frac{y}{\sqrt{x^2 + y^2}} \right)" />
+
+To get the degrees we calculate the angle using the `asin` function and convert it to degrees. `theta = Math.asin(sin)` and `degrees = toDeg(theta)`.
+
+<Math block math="\theta = \sin^{-1} \left( \frac{y}{\sqrt{x^2 + y^2}} \right)" />
+
+Lastly, we need to check which quadrant we're in and convert the point to degrees. We do this by using the `getDegFromQuadrant` function we created earlier.
 
 <CodeSnippet
 language="tsx"
@@ -476,3 +484,297 @@ code={`const turnDial = (f: DraggableEvent, d: DraggableData) => {
   setDegrees(increase > max ? max : increase < min ? min : increase)
 }`}
 />
+
+---
+
+## The Full Component
+
+Here is the full component with all the code we've written so far. I've also added a child element to the dial to display the current value. 
+
+<Sandpack customSetup={{dependencies: {
+    "loader-utils": "3.2.1",
+    "react": "18.2.0",
+    "react-dom": "18.2.0",
+    "react-scripts": "5.0.1",
+    "react-draggable": "4.4.6",
+  },
+  devDependencies: {
+    "@types/react": "18.2.38",
+    "@types/react-dom": "18.2.15",
+    "typescript": "4.4.4"
+  }}}
+  
+  files={{"Dial.tsx": `import type { FC } from "react";
+import React, { useRef, useState } from "react";
+
+import type { DraggableData, DraggableEvent } from "react-draggable";
+import { DraggableCore } from "react-draggable";
+
+const toDeg = (rad: number) => {
+  return rad * (180 / Math.PI);
+};
+
+const getDegFromQuadrant = (
+  point: { x: number; y: number },
+  deg: number,
+  lastQuadrant: number,
+  setLastQuadrant: React.Dispatch<React.SetStateAction<number>>
+): number => {
+  const q1 = point.x >= 0 && point.y >= 0;
+  const q2 = point.x <= 0 && point.y >= 0;
+  const q3 = point.x <= 0 && point.y <= 0;
+  const q4 = point.x >= 0 && point.y <= 0;
+  if (q1 || q4) {
+    if (lastQuadrant === 2) {
+      return -90 - deg;
+    }
+    setLastQuadrant(q1 ? 1 : 4);
+    return 270 - deg;
+  }
+  if (q2 || q3) {
+    if (lastQuadrant === 1) {
+      return 450 + deg;
+    }
+    setLastQuadrant(q2 ? 2 : 3);
+    return 90 + deg;
+  }
+  return 0;
+};
+
+export const Dial: FC<{
+  max?: number;
+  min?: number;
+  increment?: number;
+  initial?: number;
+  children?: JSX.Element;
+  degrees: number;
+  setDegrees: React.Dispatch<React.SetStateAction<number>>;
+}> = ({
+  max = 360,
+  min = 0,
+  increment = 45,
+  degrees = 0,
+  setDegrees,
+  children,
+}) => {
+  const dragRef = useRef(null);
+  const dialRef = useRef<HTMLDivElement>(null);
+  const [lastQuadrant, setLastQuadrant] = useState(2);
+
+  const turnDial = (f: DraggableEvent, d: DraggableData) => {
+    const e = f as MouseEvent;
+    if (!dialRef.current) return;
+    const ref = dialRef.current;
+    const box = ref.getBoundingClientRect();
+    const centerPoint = {
+      y: box.top + box.height / 2,
+      x: box.left + box.width / 2,
+    };
+    const mouse = { x: e.clientX, y: e.clientY };
+    const point = { x: centerPoint.x - mouse.x, y: centerPoint.y - mouse.y };
+    const sin =
+      point.y / Math.sqrt(Math.pow(point.x, 2) + Math.pow(point.y, 2));
+    const cos =
+      point.x / Math.sqrt(Math.pow(point.x, 2) + Math.pow(point.y, 2));
+    const theta = Math.asin(sin);
+    const degrees = getDegFromQuadrant(
+      { x: -cos, y: -sin },
+      toDeg(theta),
+      lastQuadrant,
+      setLastQuadrant
+    );
+    const increase = increment * Math.floor(degrees / increment);
+    setDegrees(increase > max ? max : increase < min ? min : increase);
+  };
+
+  return (
+    <div className="wrapper">
+      <div className="outer">
+        <div className="dial-container">
+          <div
+            className="handle-container"
+            style={{
+              transform: \`rotate(\${degrees}deg)\`,
+            }}
+          >
+            <div className="handle" />
+          </div>
+          <div className="child-wrapper">{children}</div>
+          <DraggableCore onDrag={turnDial} ref={dragRef}>
+            <div className="dial" ref={dialRef} />
+          </DraggableCore>
+        </div>
+      </div>
+    </div>
+  );
+};
+`,
+"App.tsx": `import { useState } from "react";
+import { styled } from "styled-components";
+import { Dial } from "./Dial";
+import "./styles.css";
+
+export default function App() {
+  const [degrees, setDegrees] = useState(0);
+  return (
+    <div className="App">
+      <div className="flex-wrapper">
+        <Dial
+          min={0}
+          max={360}
+          increment={1}
+          degrees={degrees}
+          setDegrees={setDegrees}
+        >
+          <div className="text-wrapper">
+            <h3>{degrees}</h3>
+            <p>degrees</p>
+          </div>
+        </Dial>
+      </div>
+    </div>
+  );
+}
+`,
+"styles.css": `.App {
+  font-family: sans-serif;
+  text-align: center;
+  padding: 30px;
+  position: relative;
+  height: 100vh;
+  width: 100vw;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.flex-wrapper {
+  display: flex;
+  width: 100%;
+  height: 100%;
+}
+
+html {
+  background-color: black;
+}
+
+* {
+  box-sizing: border-box;
+  padding: 0;
+  margin: 0;
+}
+
+.wrapper {
+  display: flex;
+  width: 100%;
+  align-items: center;
+  transition: background-color 0.2s ease-in-out;
+  position: relative;
+  * {
+    margin: 0;
+    padding: 0;
+  }
+}
+
+.dial-container {
+  width: calc(100% - 8px);
+  height: calc(100% - 8px);
+  border-radius: 50%;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  position: relative;
+  z-index: 2;
+  width: 60%;
+  height: 60%;
+  cursor: pointer;
+}
+
+.child-wrapper {
+  position: absolute;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+}
+
+.handle-container {
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  position: relative;
+  transition: transform 0.15s;
+  pointer-events: none;
+}
+
+.handle {
+  width: 3.5%;
+  height: 3.5%;
+  min-width: 10px;
+  min-height: 10px;
+  top: calc(100% - 13%);
+  border-radius: 50%;
+  background: #0084ff;
+  transition: box-shadow 0.5s;
+  cursor: pointer;
+  position: absolute;
+  box-shadow: 0 0 15px 0px #0084ff7d;
+}
+
+.dial {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  z-index: -1;
+  cursor: pointer;
+  border-radius: 50%;
+  background: #111111;
+  box-shadow: 20px 20px 100px #000000, -20px -20px 100px #303030;
+  border: 1px solid #383838;
+}
+
+.outer {
+  width: 100%;
+  aspect-ratio: 1 / 1;
+  border-radius: 50%;
+  background: #111111;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.text-wrapper {
+  gap: 10px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  h3 {
+    font-size: 24px;
+    font-weight: 500;
+    color: white;
+  }
+  p {
+    font-size: 12px;
+    color: white;
+  }
+}
+`
+}}
+options={{activeFile: "Dial.tsx"}}
+/>
+
+---
+
+## Conclusion
+
+We needed something like this for a project at work and I thought it would be an interesting challenge. I had recently taken a course on trigonometry and thought it would be a good opportunity to apply what I had learned. I'm happy with how it turned out! And I hope you can find some use for it in your projects as well.
