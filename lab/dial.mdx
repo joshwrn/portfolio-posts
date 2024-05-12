@@ -1,0 +1,478 @@
+{/* ---
+title: React Dial
+description: A customizable dial component for React applications. The dial can be used to select a value within a range.
+featured: false
+category: lab
+tags: ['react', 'ui', 'dial']
+publishedAt: 2021-08-01
+mainVideo: 'lab/dial/dial-main-video.mp4'
+demo: 'https://joshwrn.github.io/react-dial/'
+repo: 'https://github.com/joshwrn/react-dial'
+--- */}
+
+## Overview
+
+The React Dial component is a customizable dial that can be used to select a value within a range. The dial can be rotated by dragging the mouse or by using touch gestures on mobile devices. The dial can be customized with various props to control its appearance and behavior.
+
+I'm going to walk through the process of creating the React Dial component and explain how it works.
+
+---
+
+## Setup
+
+There's two packages that I used to create the React Dial component. The first is [react-draggable](https://www.npmjs.com/package/react-draggable) which I used to handle dragging. The second is [resize-observer](https://www.npmjs.com/package/@react-hook/resize-observer) which I used to resize certain elements when the dial is resized.
+
+<CodeSnippet 
+showLineNumbers={false}
+language="bash"
+code={`npm install react-draggable @react-hook/resize-observe`}
+/>
+
+---
+
+## Building the Component
+
+### The Dial
+
+This us the component in its most basic form. Just a couple divs and a little bit of CSS.
+
+<Sandpack customSetup={{dependencies: {
+    "loader-utils": "3.2.1",
+    "react": "18.2.0",
+    "react-dom": "18.2.0",
+    "react-scripts": "5.0.1",
+    "react-draggable": "4.4.6",
+    "styled-components": "6.1.11",
+    "@react-hook/resize-observer": "1.2.6"
+  },
+  devDependencies: {
+    "@types/react": "18.2.38",
+    "@types/react-dom": "18.2.15",
+    "typescript": "4.4.4"
+  }}}
+  
+  files={{"Dial.tsx": `import type { FC } from 'react'
+import React, { useState } from 'react'
+
+export const Dial: FC = () => {
+  return (
+    <div className="wrapper">
+      <div className="outer">
+        <div className="dial-container"
+          style={{
+            width: \`60%\`,
+            height: \`60%\`,
+          }}
+        >
+          <div className="dial" />
+        </div>
+      </div>
+    </div>
+  )
+}
+`,
+"App.tsx": `import { Dial } from "./Dial";
+import "./styles.css";
+
+export default function App() {
+  return (
+    <div className="App">
+      <Dial />
+    </div>
+  );
+}
+`,
+"styles.css": `.App {
+  font-family: sans-serif;
+  text-align: center;
+  padding: 30px;
+  position: relative;
+  height: 100vh;
+  width: 100vw;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.flex-wrapper {
+  display: flex;
+  width: 100%;
+  height: 100%;
+}
+
+html {
+  background-color: black;
+}
+
+* {
+  box-sizing: border-box;
+  padding: 0;
+  margin: 0;
+}
+
+.wrapper {
+  display: flex;
+  width: 100%;
+  align-items: center;
+  transition: background-color 0.2s ease-in-out;
+  position: relative;
+  * {
+    margin: 0;
+    padding: 0;
+  }
+}
+
+.dial-container {
+  width: calc(100% - 8px);
+  height: calc(100% - 8px);
+  border-radius: 50%;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  position: relative;
+  z-index: 2;
+}
+
+.dial {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  z-index: -1;
+  cursor: pointer;
+  border-radius: 50%;
+  background: #111111;
+  box-shadow: 20px 20px 100px #000000, -20px -20px 100px #303030;
+  border: 1px solid #383838;
+}
+
+.outer {
+  width: 100%;
+  aspect-ratio: 1 / 1;
+  border-radius: 50%;
+  background: #111111;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+`
+}}
+options={{activeFile: "Dial.tsx"}}
+/>
+
+---
+
+### The Handle
+
+Next, we need to add a handle to the dial. It isn't necessary for the dial to function, but it does indicate to the user that the dial can be rotated and provides a visual reference for the current value.
+
+The handle's position is determined by the `degrees` prop. The container element is rotated by the specified number of degrees, which in turn rotates the handle.
+
+<CodeSnippet
+showLineNumbers={false}
+language="tsx"
+code={`<div
+  className="handle-container"
+  style={{
+    transform: \`rotate(\${degrees}deg)\`,
+  }}
+>
+  <div className="handle" />
+</div>`}
+/>
+
+<Sandpack customSetup={{dependencies: {
+    "loader-utils": "3.2.1",
+    "react": "18.2.0",
+    "react-dom": "18.2.0",
+    "react-scripts": "5.0.1",
+    "react-draggable": "4.4.6",
+    "styled-components": "6.1.11",
+    "@react-hook/resize-observer": "1.2.6"
+  },
+  devDependencies: {
+    "@types/react": "18.2.38",
+    "@types/react-dom": "18.2.15",
+    "typescript": "4.4.4"
+  }}}
+  
+  files={{"Dial.tsx": `import type { FC } from 'react'
+
+export const Dial: FC<{
+  degrees: number
+}> = ({ degrees = 0 }) => {
+  return (
+    <div className="wrapper">
+      <div className="outer">
+        <div className="dial-container">
+          <div
+            className="handle-container"
+            style={{
+              transform: \`rotate(\${degrees}deg)\`,
+            }}
+          >
+            <div className="handle" />
+          </div>
+          <div className="dial" />
+        </div>
+      </div>
+    </div>
+  )
+}
+`,
+"App.tsx": `import React from "react";
+
+import { Dial } from "./Dial";
+import "./styles.css";
+
+export default function App() {
+  const [degrees, setDegrees] = React.useState(0)
+  return (
+    <div className="App">
+      <Dial degrees={degrees} />
+    </div>
+  );
+}
+`,
+"styles.css": `.App {
+  font-family: sans-serif;
+  text-align: center;
+  padding: 30px;
+  position: relative;
+  height: 100vh;
+  width: 100vw;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.flex-wrapper {
+  display: flex;
+  width: 100%;
+  height: 100%;
+}
+
+html {
+  background-color: black;
+}
+
+* {
+  box-sizing: border-box;
+  padding: 0;
+  margin: 0;
+}
+
+.wrapper {
+  display: flex;
+  width: 100%;
+  align-items: center;
+  transition: background-color 0.2s ease-in-out;
+  position: relative;
+  * {
+    margin: 0;
+    padding: 0;
+  }
+}
+
+.dial-container {
+  width: calc(100% - 8px);
+  height: calc(100% - 8px);
+  border-radius: 50%;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  position: relative;
+  z-index: 2;
+  width: 60%;
+  height: 60%;
+  cursor: pointer;
+}
+
+.child-wrapper {
+  position: absolute;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+}
+
+.handle-container {
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  position: relative;
+  transition: transform 0.15s;
+  pointer-events: none;
+}
+
+.handle {
+  width: 3.5%;
+  height: 3.5%;
+  min-width: 10px;
+  min-height: 10px;
+  top: calc(100% - 8%);
+  border-radius: 50%;
+  background: #0084ff;
+  transition: box-shadow 0.5s;
+  cursor: pointer;
+  position: absolute;
+  box-shadow: 0 0 15px 0px #0084ff7d;
+}
+
+.dial {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  z-index: -1;
+  cursor: pointer;
+  border-radius: 50%;
+  background: #111111;
+  box-shadow: 20px 20px 100px #000000, -20px -20px 100px #303030;
+  border: 1px solid #383838;
+}
+
+.outer {
+  width: 100%;
+  aspect-ratio: 1 / 1;
+  border-radius: 50%;
+  background: #111111;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}`
+}}
+options={{activeFile: "Dial.tsx"}}
+/>
+
+---
+
+### Dragging
+
+To make the dial draggable, we're going to need to do a few things. First, we need to import the `DraggableCore` component from `react-draggable`. Next, we need to create a ref for the draggable component and the dial itself.
+
+<CodeSnippet
+language="tsx"
+title="Dial.tsx"
+highlightedLines={[2, 8, 11, 13, 14, 28, 30]}
+code={`import type { FC } from 'react'
+import React, { useRef } from 'react'
+
+import { DraggableCore } from 'react-draggable'
+
+export const Dial: FC<{
+  degrees: number
+  setDegrees: React.Dispatch<React.SetStateAction<number>>
+}> = ({
+  degrees = 0,
+  setDegrees,
+}) => {
+  const dragRef = useRef(null)
+  const dialRef = useRef<HTMLDivElement>(null)
+
+  return (
+    <div className="wrapper">
+      <div className="outer">
+        <div className="dial-container">
+          <div
+            className="handle-container"
+            style={{
+              transform: \`rotate(\${degrees}deg)\`,
+            }}
+          >
+            <div className="handle" />
+          </div>
+          <DraggableCore ref={dragRef}>
+            <div className="dial" ref={dialRef} />
+          </DraggableCore>
+        </div>
+      </div>
+    </div>
+  )
+}
+`}
+/>
+
+### Getting the quadrant
+
+We will need to determine the degrees of rotation based on the position of the mouse or touch event. We can do this by calculating the angle between the center of the dial and the current position of the mouse or touch event. 
+
+It's not as simple as just calculating the angle between two points. We need to take into account the quadrant that the mouse or touch event is in. This is because the angle between two points is not unique. For example, the angle between the points <Math math="(1, 0)"/> and <Math>(0, 1)</Math> is 90 degrees, but so is the angle between the points <Math>(1, 0)</Math> and <Math>(0, -1)</Math>. 
+
+<ExcaliSvg path="lab/dial/Untitled-2022-11-05-0138_o1fk9v.svg" width={470} />
+
+We also don't want the dial to instantly jump to 360 if we're starting at 0. So we need just check to see which quadrant we're inbefore we calculate the angle.
+
+<CodeSnippet
+language="tsx"
+title="The function to convert a point in a quadrant to degrees"
+code={`const getDegFromQuadrant = (
+  point: { x: number; y: number },
+  deg: number,
+  lastQuadrant: number,
+  setLastQuadrant: React.Dispatch<React.SetStateAction<number>>
+): number => {
+  const q1 = point.x >= 0 && point.y >= 0;
+  const q2 = point.x <= 0 && point.y >= 0;
+  const q3 = point.x <= 0 && point.y <= 0;
+  const q4 = point.x >= 0 && point.y <= 0;
+  if (q1 || q4) {
+    if (lastQuadrant === 2) {
+      return -90 - deg;
+    }
+    setLastQuadrant(q1 ? 1 : 4);
+    return 270 - deg;
+  }
+  if (q2 || q3) {
+    if (lastQuadrant === 1) {
+      return 450 + deg;
+    }
+    setLastQuadrant(q2 ? 2 : 3);
+    return 90 + deg;
+  }
+  return 0;
+};`}
+/>
+
+### Closest Point on the Dial
+
+Using basic trigonometry, we can calculate the angle between the center of the dial and the current position of the mouse or touch event. We can then convert this angle to degrees and update the state with the new value.
+
+<Math block math="\left( \frac{x}{\sqrt{x^{2} + y^2}}, \frac{y}{\sqrt{x^2 + y^2}} \right)" />
+
+<CodeSnippet
+language="tsx"
+title="The function to get the closest point on the dial"
+code={`const turnDial = (f: DraggableEvent, d: DraggableData) => {
+  const e = f as MouseEvent
+  if (!dialRef.current) return
+  const ref = dialRef.current
+  const box = ref.getBoundingClientRect()
+  const centerPoint = {
+    y: box.top + box.height / 2,
+    x: box.left + box.width / 2,
+  }
+  const mouse = { x: e.clientX, y: e.clientY }
+  const point = { x: centerPoint.x - mouse.x, y: centerPoint.y - mouse.y }
+  const sin = point.y / Math.sqrt(Math.pow(point.x, 2) + Math.pow(point.y, 2))
+  const cos = point.x / Math.sqrt(Math.pow(point.x, 2) + Math.pow(point.y, 2))
+  const theta = Math.asin(sin)
+  const degrees = getDegFromQuadrant(
+    { x: -cos, y: -sin },
+    toDeg(theta),
+    lastQuadrant,
+    setLastQuadrant
+  )
+  const increase = increment * Math.floor(degrees / increment)
+  setDegrees(increase > max ? max : increase < min ? min : increase)
+}`}
+/>
