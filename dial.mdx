@@ -398,92 +398,46 @@ export const Dial: FC<{
 `}
 />
 
-### Getting the quadrant
+---
 
-We will need to determine the degrees of rotation based on the position of the mouse or touch event. We can do this by calculating the angle between the center of the dial and the current position of the mouse or touch event. 
+### Getting the Angle
 
-It's not as simple as just calculating the angle between two points. We need to take into account the quadrant that the mouse or touch event is in. This is because the angle between two points is not unique. For example, the angle between the points <Math math="(1, 0)"/> and <Math>(0, 1)</Math> is 90 degrees, but so is the angle between the points <Math>(1, 0)</Math> and <Math>(0, -1)</Math>. 
+Finally, we need to calculate the angle of the mouse relative to the center of the dial. This will give us the number of degrees the dial should be rotated.
 
-<ExcaliSvg path="lab/dial/Untitled-2022-11-05-0138_o1fk9v.svg" width={470} />
+<Math block math="\theta = \arctan\left(\frac{{y_2 - y_1}}{{x_2 - x_1}}\right)" />
 
-We also don't want the dial to instantly jump to 360 if we're starting at 0. So we need just check to see which quadrant we're inbefore we calculate the angle.
+The angle is calculated in radians, so we need to convert it to degrees. We also need to add 90 degrees to the result to account for the starting position of the dial.
+
+<Math block math="\text{degrees} = \theta \times \left(\frac{{180}}{{\pi}}\right) + 90" />
+
+After that we need to make sure the angle is within the range of 0 to 360 degrees. If the angle is less than 0, we add 360 to it. If the angle is greater than 270 and the last angle was less than 180, we set the angle to the minimum value. If the angle is less than 90 and the last angle was greater than 270, we set the angle to the maximum value.
 
 <CodeSnippet
 language="tsx"
-title="The function to convert a point in a quadrant to degrees"
-code={`const getDegFromQuadrant = (
-  point: { x: number; y: number },
-  deg: number,
-  lastQuadrant: number,
-  setLastQuadrant: React.Dispatch<React.SetStateAction<number>>
-): number => {
-  const q1 = point.x >= 0 && point.y >= 0;
-  const q2 = point.x <= 0 && point.y >= 0;
-  const q3 = point.x <= 0 && point.y <= 0;
-  const q4 = point.x >= 0 && point.y <= 0;
-  if (q1 || q4) {
-    if (lastQuadrant === 2) {
-      return -90 - deg;
-    }
-    setLastQuadrant(q1 ? 1 : 4);
-    return 270 - deg;
+title="degreesBetweenPoints"
+  code={`const getDegrees = (
+  p1: { x: number; y: number },
+  p2: { x: number; y: number },
+  min: number,
+  max: number,
+  last: number
+) => {
+  const angleRadians = Math.atan2(p2.y - p1.y, p2.x - p1.x);
+  let angleDegrees = angleRadians * (180 / Math.PI) + 90;
+
+  if (angleDegrees < 0) {
+    angleDegrees += 360;
   }
-  if (q2 || q3) {
-    if (lastQuadrant === 1) {
-      return 450 + deg;
-    }
-    setLastQuadrant(q2 ? 2 : 3);
-    return 90 + deg;
+  if (angleDegrees > 270 && last < 180) {
+    angleDegrees = min;
   }
-  return 0;
+  if (angleDegrees < 90 && last > 270) {
+    angleDegrees = max;
+  }
+
+  return angleDegrees;
 };`}
-/>
-
-### Closest Point on the Dial
-
-Using basic trigonometry, we can get the closet point on the unit circle using the center of the dial and the current mouse position.
-
-After we get the mouse position and the center of the dial, we subtract the mouse position from the center point. `{ x: centerPoint.x - mouse.x, y: centerPoint.y - mouse.y }`.
-
-Next, we calculate the sine and cosine. `cos = point.x / Math.sqrt(Math.pow(point.x, 2) + Math.pow(point.y, 2))`. To get the sine, we do the same thing but with the y value.
-
-This is the formula to get the point.
-
-<Math block math="\left( \frac{x}{\sqrt{x^{2} + y^2}}, \frac{y}{\sqrt{x^2 + y^2}} \right)" />
-
-To get the degrees we calculate the angle using the `asin` function and convert it to degrees. `theta = Math.asin(sin)` and `degrees = toDeg(theta)`.
-
-<Math block math="\theta = \sin^{-1} \left( \frac{y}{\sqrt{x^2 + y^2}} \right)" />
-
-Lastly, we need to check which quadrant we're in and convert the point to degrees. We do this by using the `getDegFromQuadrant` function we created earlier.
-
-<CodeSnippet
-language="tsx"
-title="The function to get the closest point on the dial"
-code={`const turnDial = (f: DraggableEvent, d: DraggableData) => {
-  const e = f as MouseEvent
-  if (!dialRef.current) return
-  const ref = dialRef.current
-  const box = ref.getBoundingClientRect()
-  const centerPoint = {
-    y: box.top + box.height / 2,
-    x: box.left + box.width / 2,
-  }
-  const mouse = { x: e.clientX, y: e.clientY }
-  const point = { x: centerPoint.x - mouse.x, y: centerPoint.y - mouse.y }
-  const sin = point.y / Math.sqrt(Math.pow(point.x, 2) + Math.pow(point.y, 2))
-  const cos = point.x / Math.sqrt(Math.pow(point.x, 2) + Math.pow(point.y, 2))
-  const theta = Math.asin(sin)
-  const degrees = getDegFromQuadrant(
-    { x: -cos, y: -sin },
-    toDeg(theta),
-    lastQuadrant,
-    setLastQuadrant
-  )
-  const increase = increment * Math.floor(degrees / increment)
-  setDegrees(increase > max ? max : increase < min ? min : increase)
-}`}
-/>
+ />
 
 ---
 
@@ -505,40 +459,32 @@ Here is the full component with all the code we've written so far. I've also add
   }}}
   
   files={{"Dial.tsx": `import type { FC } from "react";
-import React, { useRef, useState } from "react";
+import React, { useRef } from "react";
 
 import type { DraggableData, DraggableEvent } from "react-draggable";
 import { DraggableCore } from "react-draggable";
 
-const toDeg = (rad: number) => {
-  return rad * (180 / Math.PI);
-};
+const getDegrees = (
+  p1: { x: number; y: number },
+  p2: { x: number; y: number },
+  min: number,
+  max: number,
+  last: number
+) => {
+  const angleRadians = Math.atan2(p2.y - p1.y, p2.x - p1.x);
+  let angleDegrees = angleRadians * (180 / Math.PI) + 90;
 
-const getDegFromQuadrant = (
-  point: { x: number; y: number },
-  deg: number,
-  lastQuadrant: number,
-  setLastQuadrant: React.Dispatch<React.SetStateAction<number>>
-): number => {
-  const q1 = point.x >= 0 && point.y >= 0;
-  const q2 = point.x <= 0 && point.y >= 0;
-  const q3 = point.x <= 0 && point.y <= 0;
-  const q4 = point.x >= 0 && point.y <= 0;
-  if (q1 || q4) {
-    if (lastQuadrant === 2) {
-      return -90 - deg;
-    }
-    setLastQuadrant(q1 ? 1 : 4);
-    return 270 - deg;
+  if (angleDegrees < 0) {
+    angleDegrees += 360;
   }
-  if (q2 || q3) {
-    if (lastQuadrant === 1) {
-      return 450 + deg;
-    }
-    setLastQuadrant(q2 ? 2 : 3);
-    return 90 + deg;
+  if (angleDegrees > 270 && last < 180) {
+    angleDegrees = min;
   }
-  return 0;
+  if (angleDegrees < 90 && last > 270) {
+    angleDegrees = max;
+  }
+
+  return angleDegrees;
 };
 
 export const Dial: FC<{
@@ -559,7 +505,7 @@ export const Dial: FC<{
 }) => {
   const dragRef = useRef(null);
   const dialRef = useRef<HTMLDivElement>(null);
-  const [lastQuadrant, setLastQuadrant] = useState(2);
+  const last = useRef(0);
 
   const turnDial = (f: DraggableEvent, d: DraggableData) => {
     const e = f as MouseEvent;
@@ -571,18 +517,9 @@ export const Dial: FC<{
       x: box.left + box.width / 2,
     };
     const mouse = { x: e.clientX, y: e.clientY };
-    const point = { x: centerPoint.x - mouse.x, y: centerPoint.y - mouse.y };
-    const sin =
-      point.y / Math.sqrt(Math.pow(point.x, 2) + Math.pow(point.y, 2));
-    const cos =
-      point.x / Math.sqrt(Math.pow(point.x, 2) + Math.pow(point.y, 2));
-    const theta = Math.asin(sin);
-    const degrees = getDegFromQuadrant(
-      { x: -cos, y: -sin },
-      toDeg(theta),
-      lastQuadrant,
-      setLastQuadrant
-    );
+
+    const degrees = getDegrees(mouse, centerPoint, min, max, last.current);
+    last.current = degrees;
     const increase = increment * Math.floor(degrees / increment);
     setDegrees(increase > max ? max : increase < min ? min : increase);
   };
