@@ -228,9 +228,30 @@ It was actually easy to set it up because of Next.js's "pages router". All I nee
 
 Obviously, I needed to allow players to join their own rooms unless I only wanted everyone playing together on one board. If I did it like that, things could be... chaotic. 
 
-<GithubCodeSnippet
-  link="https://github.com/joshwrn/3d-chess/blob/65b285289afa7891f1d39a33c4a6543de6e45ef6/src/server/joinRoom.ts"
-  lines={[1, 20]}
+<CodeSnippet
+  title="joinRoom.ts"
+  language="typescript"
+  code={`
+import type { JoinRoomClient } from '@/components/GameCreation'
+import type { Color } from '@/logic/pieces'
+import type { MyServer, MySocket, playerJoinedServer } from '@/pages/api/socket'
+
+export const joinRoom = (socket: MySocket, io: MyServer): void => {
+  socket.on(\`joinRoom\`, (data: JoinRoomClient) => {
+    const { room, username } = data
+
+    const playerCount = io.sockets.adapter.rooms.get(data.room)?.size || 0
+    if (playerCount === 2) {
+      socket.emit(\`newError\`, \`Room is full\`)
+      return
+    }
+
+    socket.join(room)
+    const color: Color = playerCount === 1 ? \`black\` : \`white\`
+    const props: playerJoinedServer = { room, username, color, playerCount }
+    io.sockets.in(room).emit(\`playerJoined\`, props)
+  })
+}`}
 />
 
 I also created Socket.io events for making moves, moving the player's camera, fetching players in a room, and sending messages.
