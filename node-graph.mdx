@@ -114,6 +114,10 @@ button {
     }
   }
 }`,
+
+    ".prettierrc": `{
+  "semi": false
+}`,
   },
   logic: {
     "/logic/createConnections.ts": `export type Connections = Map<string, Set<string>>;
@@ -216,10 +220,7 @@ code={`npm install @types/matter-js sass --save-dev`}
 
 First, we'll create the graph component itself which contains the `Stage` from `pixi.js`.
 
-<CodeSnippet
-language="tsx"
-title="src/components/Graph/Graph.tsx"
-code={`import '@pixi/events'
+export const graph1 = `import '@pixi/events'
 
 import { Stage } from '@pixi/react'
 import React from 'react'
@@ -241,46 +242,51 @@ export const Graph: React.FC = () => {
       </section>
     </div>
   )
-}`}/>
+}`
+
+<CodeSnippet
+language="tsx"
+title="src/components/Graph/Graph.tsx"
+code={graph1}/>
 
 ### Basic Node
 
 Now, we'll can create a `Node` component that will be used to represent each tag. The `draw` function is how we draw the node on the canvas. Everytime the props change, the `draw` function will be called.
 
-<CodeSnippet
-language="tsx"
-title="src/components/Graph/Node.tsx"
-code={`import { Graphics } from '@pixi/react'
-import type { ComponentProps } from 'react'
-import React from 'react'
+export const node1 = `import { Graphics } from "@pixi/react";
+import type { ComponentProps } from "react";
+import React from "react";
 
-export type Draw = Exclude<ComponentProps<typeof Graphics>['draw'], undefined>
+export type Draw = Exclude<ComponentProps<typeof Graphics>["draw"], undefined>;
 
 interface NodeProps {
-  x: number
-  y: number
-  radius: number
-  opacity: number
-  id: string
+  x: number;
+  y: number;
+  radius: number;
+  opacity: number;
+  id: string;
 }
 
 export const Node = (props: NodeProps) => {
   const draw = React.useCallback<Draw>(
     (g) => {
-      g.clear()
-      g.lineStyle(0)
-      g.beginFill('#a39af7')
-      g.drawCircle(props.x, props.y, props.radius)
-      g.endFill()
+      g.clear();
+      g.lineStyle(0);
+      g.beginFill("#a39af7");
+      g.drawCircle(props.x, props.y, props.radius);
+      g.endFill();
     },
     [props]
-  )
+  );
 
-  return <Graphics draw={draw} interactive />
-}
-`}/>
+  return <Graphics draw={draw} interactive />;
+};`
 
-
+<CodeSnippet
+language="tsx"
+title="src/components/Graph/Node.tsx"
+code={node1}
+/>
 
 <Sandpack 
 options={{
@@ -315,35 +321,7 @@ export const Graph: React.FC = () => {
   );
 };`,
 
-"/Graph/Node.tsx": `import { Graphics } from "@pixi/react";
-import type { ComponentProps } from "react";
-import React from "react";
-
-export type Draw = Exclude<ComponentProps<typeof Graphics>["draw"], undefined>;
-
-interface NodeProps {
-  x: number;
-  y: number;
-  radius: number;
-  opacity: number;
-  id: string;
-}
-
-export const Node = (props: NodeProps) => {
-  const draw = React.useCallback<Draw>(
-    (g) => {
-      g.clear();
-      g.lineStyle(0);
-      g.beginFill("#a39af7");
-      g.drawCircle(props.x, props.y, props.radius);
-      g.endFill();
-    },
-    [props]
-  );
-
-  // @ts-ignore
-  return <Graphics draw={draw} interactive />;
-};`,
+"/Graph/Node.tsx": node1,
 
 ...sandpackFiles.base
 }}
@@ -373,29 +351,7 @@ After that, import the data into your `Graph.tsx` file.
 <CodeSnippet
 language="tsx"
 title="src/components/Graph/Graph.tsx"
-oldCode={`import '@pixi/events'
-
-import { Stage } from '@pixi/react'
-import React from 'react'
-
-import style from './Graph.module.scss'
-
-export const SCALE = 500
-export const RESOLUTION = 2
-
-export const Graph: React.FC = () => {
-  return (
-    <div className={style.wrapper}>
-      <section>
-        <Stage
-          width={SCALE}
-          height={SCALE}
-          options={{ resolution: RESOLUTION, antialias: true }}
-        ></Stage>
-      </section>
-    </div>
-  )
-}`}
+oldCode={graph1}
 code={`import '@pixi/events'
 
 import { Stage } from '@pixi/react'
@@ -481,7 +437,7 @@ For now, we'll just give the nodes a random position.
   activeFile: "/Graph/Graph.tsx"
   }}
   files={{
-      "/Graph/Graph.tsx": `import "@pixi/events";
+    "/Graph/Graph.tsx": `import "@pixi/events";
 
     import { Stage } from "@pixi/react";
     import React from "react";
@@ -776,24 +732,25 @@ The `World` is where we will create and store the physics engine. It will use `C
 
 We'll start by creating the context.
 
+export const world1 = `import React from 'react'
+
+const EngineContext = React.createContext<Matter.Engine | null>(null)
+export const useEngine = () => React.useContext(EngineContext)
+
+export const World: React.FC<{
+  children: React.ReactNode
+}> = ({ children }) => {
+  const [engine] = React.useState(() => Matter.Engine.create())
+
+  return (
+    <EngineContext.Provider value={engine}>{children}</EngineContext.Provider>
+  )
+}`
+
 <CodeSnippet
   language="tsx"
   title="src/components/Graph/World.tsx"
-  code={`import React from "react";
-
-  const EngineContext = React.createContext<Matter.Engine | null>(null);
-  export const useEngine = () => React.useContext(EngineContext);
-
-  export const World: React.FC<{
-    children: React.ReactNode;
-  }> = ({ children }) => {
-    const [engine] = React.useState(() => Matter.Engine.create());
-
-    return (
-      <EngineContext.Provider value={engine}>{children}</EngineContext.Provider>
-    );
-  };
-  `}
+  code={world1}
 />
 
 Now that we have the context setup. We want to set the initial state of the engine. We'll do the following:
@@ -804,129 +761,69 @@ Now that we have the context setup. We want to set the initial state of the engi
     - This will make the nodes less bouncy.
     - Unfortunately, higher values will cause performance to decrease. So be careful not to set this too high.
 
+export const world2 = `import Matter from 'matter-js'
+import React from 'react'
+
+const EngineContext = React.createContext<Matter.Engine | null>(null)
+export const useEngine = () => React.useContext(EngineContext)
+
+export const World: React.FC<{
+  children: React.ReactNode
+}> = ({ children }) => {
+  const [engine] = React.useState(() => Matter.Engine.create())
+
+  React.useEffect(() => {
+    engine.gravity.y = 0
+    engine.constraintIterations = 7
+  }, [engine])
+
+  return (
+    <EngineContext.Provider value={engine}>{children}</EngineContext.Provider>
+  )
+}`
+
 <CodeSnippet
 language="tsx"
 title="src/components/Graph/World.tsx"
-oldCode={`import React from "react";
-
-const EngineContext = React.createContext<Matter.Engine | null>(null);
-export const useEngine = () => React.useContext(EngineContext);
-
-export const World: React.FC<{
-  children: React.ReactNode;
-}> = ({ children }) => {
-  const [engine] = React.useState(() => Matter.Engine.create());
-
-  return (
-    <EngineContext.Provider value={engine}>{children}</EngineContext.Provider>
-  );
-};
-`}
-code={`import Matter from "matter-js";
-import React from "react";
-
-const EngineContext = React.createContext<Matter.Engine | null>(null);
-export const useEngine = () => React.useContext(EngineContext);
-
-export const World: React.FC<{
-  children: React.ReactNode;
-}> = ({ children }) => {
-  const [engine] = React.useState(() => Matter.Engine.create());
-
-  React.useEffect(() => {
-    engine.gravity.y = 0;
-    engine.constraintIterations = 7;
-  }, [engine]);
-
-  return (
-    <EngineContext.Provider value={engine}>{children}</EngineContext.Provider>
-  );
-};`}/>
+oldCode={world1}
+code={world2}
+/>
 
 Lastly, we'll tell the engine to update 60 times per second.
 
 <CodeSnippet
 language="tsx"
 title="src/components/Graph/World.tsx"
-oldCode={`import Matter from "matter-js";
-import React from "react";
+oldCode={world2}
+code={`import { useTick } from '@pixi/react'
+import Matter from 'matter-js'
+import React from 'react'
 
-const EngineContext = React.createContext<Matter.Engine | null>(null);
-export const useEngine = () => React.useContext(EngineContext);
+const EngineContext = React.createContext<Matter.Engine | null>(null)
+export const useEngine = () => React.useContext(EngineContext)
 
 export const World: React.FC<{
-  children: React.ReactNode;
+  children: React.ReactNode
 }> = ({ children }) => {
-  const [engine] = React.useState(() => Matter.Engine.create());
+  const [engine] = React.useState(() => Matter.Engine.create())
 
   React.useEffect(() => {
-    engine.gravity.y = 0;
-    engine.constraintIterations = 7;
-  }, [engine]);
+    engine.gravity.y = 0
+    engine.constraintIterations = 7
+  }, [engine])
+
+  useTick((delta) => Matter.Engine.update(engine, delta * (1000 / 60)))
 
   return (
     <EngineContext.Provider value={engine}>{children}</EngineContext.Provider>
-  );
-};`}
-code={`import { useTick } from "@pixi/react";
-import Matter from "matter-js";
-import React from "react";
-
-const EngineContext = React.createContext<Matter.Engine | null>(null);
-export const useEngine = () => React.useContext(EngineContext);
-
-export const World: React.FC<{
-  children: React.ReactNode;
-}> = ({ children }) => {
-  const [engine] = React.useState(() => Matter.Engine.create());
-
-  React.useEffect(() => {
-    engine.gravity.y = 0;
-    engine.constraintIterations = 7;
-  }, [engine]);
-
-  useTick((delta) => Matter.Engine.update(engine, delta * (1000 / 60)));
-
-  return (
-    <EngineContext.Provider value={engine}>{children}</EngineContext.Provider>
-  );
-};`}/>
+  )
+}`}/>
 
 ### Node Physics
 
 Let's add the physical representation of the nodes to the world. We'll start by updating the `Node` component to use the `useEngine` hook and add the refs that we'll be using to update the position of the nodes.
 
-<CodeSnippet
-language="tsx"
-title="src/components/Graph/Node.tsx"
-oldCode={`import { Graphics } from "@pixi/react";
-import type { ComponentProps } from "react";
-import React from "react";
-
-export type Draw = Exclude<ComponentProps<typeof Graphics>["draw"], undefined>;
-
-interface NodeProps {
-  x: number;
-  y: number;
-  radius: number;
-  id: string;
-}
-
-export const Node = (props: NodeProps) => {
-  const draw = React.useCallback<Draw>(
-    (g) => {
-      g.clear();
-      g.lineStyle(0);
-      g.beginFill("#a39af7");
-      g.drawCircle(props.x, props.y, props.radius);
-      g.endFill();
-    },
-    [props]
-  );
-
-  return <Graphics draw={draw} interactive />;
-};`}
-code={`import type { Graphics as PIXIGraphics } from "@pixi/graphics";
+export const node2 = `import type { Graphics as PIXIGraphics } from "@pixi/graphics";
 import { Graphics } from "@pixi/react";
 import type { Body } from "matter-js";
 import React from "react";
@@ -948,37 +845,17 @@ export const Node = (props: NodeProps) => {
   const graphics = React.useRef<PIXIGraphics>(null);
 
   return <Graphics draw={draw} interactive />;
-};`} />
+};`
+
+<CodeSnippet
+language="tsx"
+title="src/components/Graph/Node.tsx"
+oldCode={node1}
+code={node2} />
 
 Now, we'll use the `Matter.World.Add` function to add the bodies (The physical representation of the node), to the world.
 
-<CodeSnippet
-language="tsx"
-title="src/components/Graph/Node.tsx"
-oldCode={`import type { Graphics as PIXIGraphics } from "@pixi/graphics";
-import { Graphics } from "@pixi/react";
-import type { Body } from "matter-js";
-import React from "react";
-import { NodeType } from "../logic/createNodes";
-
-import { useEngine } from "./World";
-
-interface NodeProps {
-  x: number;
-  y: number;
-  radius: number;
-  id: string;
-  setNodes: React.Dispatch<React.SetStateAction<NodeType[]>>;
-}
-
-export const Node = (props: NodeProps) => {
-  const engine = useEngine();
-  const body = React.useRef<Body>(null) as React.MutableRefObject<Body>;
-  const graphics = React.useRef<PIXIGraphics>(null);
-
-  return <Graphics draw={draw} interactive />;
-};`}
-code={`import type { Graphics as PIXIGraphics } from "@pixi/graphics";
+export const node3 = `import type { Graphics as PIXIGraphics } from "@pixi/graphics";
 import { Graphics } from "@pixi/react";
 import type { Body } from "matter-js";
 import Matter from "matter-js";
@@ -1024,63 +901,19 @@ export const Node = (props: NodeProps) => {
   }, []);
 
   return <Graphics ref={graphics} interactive />;
-};`}/>
+};`
+
+<CodeSnippet
+language="tsx"
+title="src/components/Graph/Node.tsx"
+oldCode={node2}
+code={node3}/>
 
 Next, we'll use the `useTick` hook to draw the positions of the physical nodes. 
 
 > NOTE: I'm subtracting `15` from the radius so that the nodes never actually hit each other. This creates a force field around the nodes.
 
-<CodeSnippet
-language="tsx"
-title="src/components/Graph/NodePhysics.tsx"
-oldCode={`import type { Graphics as PIXIGraphics } from "@pixi/graphics";
-import { Graphics } from "@pixi/react";
-import type { Body } from "matter-js";
-import Matter from "matter-js";
-import React from "react";
-import { NodeType } from "../logic/createNodes";
-
-import { useEngine } from "./World";
-
-export const extractCoordinates = (vertice: {
-  x: number;
-  y: number;
-}): [number, number] => [vertice.x, vertice.y];
-
-interface NodeProps {
-  x: number;
-  y: number;
-  radius: number;
-  id: string;
-  setNodes: React.Dispatch<React.SetStateAction<NodeType[]>>;
-}
-
-export const Node = (props: NodeProps) => {
-  const engine = useEngine();
-  const body = React.useRef<Body>(null) as React.MutableRefObject<Body>;
-  const graphics = React.useRef<PIXIGraphics>(null);
-
-  React.useEffect(() => {
-    if (!engine) return;
-
-    body.current = Matter.Bodies.circle(...[props.x, props.y, props.radius], {
-      friction: 1,
-      density: 0.1,
-      restitution: 0,
-      frictionAir: 0.09,
-      frictionStatic: 1,
-    });
-
-    Matter.World.add(engine.world, body.current);
-
-    return () => {
-      Matter.World.remove(engine.world, body.current);
-    };
-  }, []);
-
-  return <Graphics ref={graphics} interactive />;
-};`}
-code={`import type { Graphics as PIXIGraphics } from "@pixi/graphics";
+export const node4 = `import type { Graphics as PIXIGraphics } from "@pixi/graphics";
 import { Graphics, useTick } from "@pixi/react";
 import type { Body } from "matter-js";
 import Matter from "matter-js";
@@ -1148,7 +981,13 @@ export const Node = (props: NodeProps) => {
   }, []);
 
   return <Graphics ref={graphics} interactive />;
-};`}/>
+};`
+
+<CodeSnippet
+language="tsx"
+title="src/components/Graph/Node.tsx"
+oldCode={node3}
+code={node4}/>
 
 ### Updating the Position
 
@@ -1158,76 +997,8 @@ To avoid updating the position too often and causing performance issues, we'll o
 
 <CodeSnippet
 language="tsx"
-title="src/components/Graph/NodePhysics.tsx"
-oldCode={`import type { Graphics as PIXIGraphics } from "@pixi/graphics";
-import { Graphics, useTick } from "@pixi/react";
-import type { Body } from "matter-js";
-import Matter from "matter-js";
-import React from "react";
-import { NodeType } from "../logic/createNodes";
-
-import { useEngine } from "./World";
-
-export const extractCoordinates = (vertice: {
-  x: number;
-  y: number;
-}): [number, number] => [vertice.x, vertice.y];
-
-interface NodeProps {
-  x: number;
-  y: number;
-  radius: number;
-  id: string;
-  setNodes: React.Dispatch<React.SetStateAction<NodeType[]>>;
-}
-
-export const Node = (props: NodeProps) => {
-  const engine = useEngine();
-  const body = React.useRef<Body>(null) as React.MutableRefObject<Body>;
-  const graphics = React.useRef<PIXIGraphics>(null);
-
-  useTick(() => {
-    const g = graphics.current;
-    const b = body.current;
-
-    if (!g) return;
-
-    g.clear();
-
-    g.lineStyle(0);
-
-    g.moveTo(...extractCoordinates(b.vertices[0]));
-    for (var j = 1; j < b.vertices.length; j += 1) {
-      g.lineTo(...extractCoordinates(b.vertices[j]));
-    }
-    g.lineTo(...extractCoordinates(b.vertices[0]));
-
-    g.alpha = 1;
-    g.lineStyle(0);
-    g.beginFill(\`#a39af7\`);
-    g.drawCircle(b.position.x, b.position.y, props.radius - 15);
-  });
-
-  React.useEffect(() => {
-    if (!engine) return;
-
-    body.current = Matter.Bodies.circle(...[props.x, props.y, props.radius], {
-      friction: 1,
-      density: 0.1,
-      restitution: 0,
-      frictionAir: 0.09,
-      frictionStatic: 1,
-    });
-
-    Matter.World.add(engine.world, body.current);
-
-    return () => {
-      Matter.World.remove(engine.world, body.current);
-    };
-  }, []);
-
-  return <Graphics ref={graphics} interactive />;
-};`}
+title="src/components/Graph/Node.tsx"
+oldCode={node4}
 code={`import type { Graphics as PIXIGraphics } from "@pixi/graphics";
 import { Graphics, useTick } from "@pixi/react";
 import type { Body } from "matter-js";
@@ -1325,10 +1096,7 @@ export const Node = (props: NodeProps) => {
 
 Now that the nodes are connected to the physics engine, we can add mouse interaction. We'll start by creating a new component called `Mouse`.
 
-<CodeSnippet
-language="tsx"
-title="src/components/Graph/Mouse.tsx"
-code={`import { useApp } from "@pixi/react";
+export const mouse1 = `import { useApp } from "@pixi/react";
 import React from "react";
 
 import { useEngine } from "./World";
@@ -1340,7 +1108,12 @@ export const Mouse: React.FC<{
   const engine = useEngine();
 
   return <React.Fragment>{children}</React.Fragment>;
-};`} />
+};`
+
+<CodeSnippet
+language="tsx"
+title="src/components/Graph/Mouse.tsx"
+code={mouse1} />
 
 Now we'll use the `Matter.Mouse.create` function to create a new mouse object. We'll also create a new mouse constraint object using the `Matter.MouseConstraint.create` function. This will allow us to interact with the nodes.
 
@@ -1349,19 +1122,7 @@ Setting the scale of the mouse is also important. If the scale is incorrect, the
 <CodeSnippet
 language="tsx"
 title="src/components/Graph/Mouse.tsx"
-oldCode={`import { useApp } from "@pixi/react";
-import React from "react";
-
-import { useEngine } from "./World";
-
-export const Mouse: React.FC<{
-  children: React.ReactNode;
-}> = ({ children }) => {
-  const app = useApp();
-  const engine = useEngine();
-
-  return <React.Fragment>{children}</React.Fragment>;
-};`}
+oldCode={mouse1}
 code={`import { useApp } from "@pixi/react";
 import Matter from "matter-js";
 import React from "react";
