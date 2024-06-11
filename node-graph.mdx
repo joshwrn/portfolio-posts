@@ -425,83 +425,83 @@ export const createConnections = (tags: string[][]) => {
 For now, we'll just give the nodes a random position.
 
 <CodeSnippet
-  language="ts"
-  title={paths.createNodes}
-  code={`import { SCALE } from "../Graph/Graph";
-  import { Connections } from "./createConnections";
+language="ts"
+title={paths.createNodes}
+code={`import { SCALE } from "../Graph/Graph";
+import { Connections } from "./createConnections";
 
-  export interface NodeType {
-    key: string;
-    position: { x: number; y: number };
-  }
+export interface NodeType {
+  key: string;
+  position: { x: number; y: number };
+}
 
-  export const createNodes = (connections: Connections): NodeType[] => {
-    const nodeKeys = Array.from(connections.keys());
-    const nodes = nodeKeys.map((key) => ({
-      key,
-      position: { x: Math.random() * SCALE, y: Math.random() * SCALE },
-    }));
-    return nodes;
-  };`}
+export const createNodes = (connections: Connections): NodeType[] => {
+  const nodeKeys = Array.from(connections.keys());
+  const nodes = nodeKeys.map((key) => ({
+    key,
+    position: { x: Math.random() * SCALE, y: Math.random() * SCALE },
+  }));
+  return nodes;
+};`}
 />
 
 <Sandpack 
-  customSetup={sandpackCustomSetup}
-  options={{
-  activeFile: paths.Graph
-  }}
-  files={{
-    [paths.Graph]: `import "@pixi/events";
+customSetup={sandpackCustomSetup}
+options={{
+activeFile: paths.Graph
+}}
+files={{
+[paths.Graph]: `import "@pixi/events";
 
-    import { Stage } from "@pixi/react";
-    import React from "react";
-    import { createConnections } from "../logic/createConnections";
-    import { createNodes, NodeType } from "../logic/createNodes";
-    import { fake_tags } from "../mocks/tags";
+import { Stage } from "@pixi/react";
+import React from "react";
+import { createConnections } from "../logic/createConnections";
+import { createNodes, NodeType } from "../logic/createNodes";
+import { fake_tags } from "../mocks/tags";
 
-    import style from "./Graph.module.scss";
-    import { Node } from "./Node";
+import style from "./Graph.module.scss";
+import { Node } from "./Node";
 
-    export const SCALE = 350;
-    export const RESOLUTION = 2;
+export const SCALE = 350;
+export const RESOLUTION = 2;
 
-    export const Graph: React.FC = () => {
-      const tags = fake_tags;
-      const connections = createConnections(tags);
-      const [nodes, setNodes] = React.useState<NodeType[]>(
-        createNodes(connections)
-      );
-      return (
-        <div className={style.wrapper}>
-          <section>
-            <Stage
-              width={SCALE}
-              height={SCALE}
-              options={{ resolution: RESOLUTION, antialias: true }}
-            >
-              {nodes.map((node) => {
-                return (
-                  <Node
-                    key={node.key}
-                    x={node.position.x}
-                    y={node.position.y}
-                    radius={5}
-                    opacity={1}
-                    id={node.key}
-                  />
-                );
-              })}
-            </Stage>
-          </section>
-        </div>
-      );
-    };`,
-    [paths.Node]: node_1,
-    ...sandpackFiles.mocks,
-    [paths.createConnections]: sandpackFiles.logic[paths.createConnections],
-    [paths.createNodes]: sandpackFiles.logic[paths.createNodes],
-    ...sandpackFiles.base
-  }}
+export const Graph: React.FC = () => {
+  const tags = fake_tags;
+  const connections = createConnections(tags);
+  const [nodes, setNodes] = React.useState<NodeType[]>(
+    createNodes(connections)
+  );
+  return (
+    <div className={style.wrapper}>
+      <section>
+        <Stage
+          width={SCALE}
+          height={SCALE}
+          options={{ resolution: RESOLUTION, antialias: true }}
+        >
+          {nodes.map((node) => {
+            return (
+              <Node
+                key={node.key}
+                x={node.position.x}
+                y={node.position.y}
+                radius={5}
+                opacity={1}
+                id={node.key}
+              />
+            );
+          })}
+        </Stage>
+      </section>
+    </div>
+  );
+};`,
+[paths.Node]: node_1,
+...sandpackFiles.mocks,
+[paths.createConnections]: sandpackFiles.logic[paths.createConnections],
+[paths.createNodes]: sandpackFiles.logic[paths.createNodes],
+...sandpackFiles.base
+}}
 />
 
 ---
@@ -515,28 +515,28 @@ Let's setup the logic to create the lines between nodes before we create the com
 First, we'll create an array from the connections. Then we'll map over the array and create an object for each connection. Finally, we filter out any duplicate connections.
 
 <CodeSnippet
-  language="ts"
-  title={paths.createEdges}
-  code={`import type { Connections } from './createConnections'
+language="ts"
+title={paths.createEdges}
+code={`import type { Connections } from './createConnections'
 
-  export interface Edge {
-    source: string
-    target: string
-  }
-  export const createEdges = (connections: Connections): Edge[] => {
-    const edges = Array.from(connections.entries())
-      .map(([source, targets]) =>
-        [...targets].map((target) => ({ source, target }))
-      )
-      .flat()
-    const unique = new Set<string>()
-    const uniqueEdges = edges.filter(({ source, target }) => {
-      if (unique.has(\`\${target}-\${source}\`)) return false
-      unique.add(\`\${source}-\${target}\`)
-      return true
-    })
-    return uniqueEdges
-  }`}
+export interface Edge {
+  source: string
+  target: string
+}
+export const createEdges = (connections: Connections): Edge[] => {
+  const edges = Array.from(connections.entries())
+    .map(([source, targets]) =>
+      [...targets].map((target) => ({ source, target }))
+    )
+    .flat()
+  const unique = new Set<string>()
+  const uniqueEdges = edges.filter(({ source, target }) => {
+    if (unique.has(\`\${target}-\${source}\`)) return false
+    unique.add(\`\${source}-\${target}\`)
+    return true
+  })
+  return uniqueEdges
+}`}
 />
 
 ### Component
@@ -544,117 +544,117 @@ First, we'll create an array from the connections. Then we'll map over the array
 Now we can create the `Line` component.
 
 export const line_final = `import { Graphics } from "@pixi/react";
-  import React from "react";
-  import { Draw } from "./Node";
+import React from "react";
+import { Draw } from "./Node";
 
-  export const Line = (props: {
-    x1: number;
-    y1: number;
-    x2: number;
-    y2: number;
-    color: string;
-  }) => {
-    const draw = React.useCallback<Draw>(
-      (g) => {
-        g.clear();
-        g.lineStyle(1, props.color, 1);
-        g.moveTo(props.x1, props.y1);
-        g.lineTo(props.x2, props.y2);
-      },
-      [props]
-    );
+export const Line = (props: {
+  x1: number;
+  y1: number;
+  x2: number;
+  y2: number;
+  color: string;
+}) => {
+  const draw = React.useCallback<Draw>(
+    (g) => {
+      g.clear();
+      g.lineStyle(1, props.color, 1);
+      g.moveTo(props.x1, props.y1);
+      g.lineTo(props.x2, props.y2);
+    },
+    [props]
+  );
 
-    return <Graphics draw={draw} />;
-  };
-  `
+  return <Graphics draw={draw} />;
+};
+`
 
 <CodeSnippet
-  language="tsx"
-  title={paths.Line}
-  code={line_final}
+language="tsx"
+title={paths.Line}
+code={line_final}
 />
 
 The Dots have been Connected
 
 <Sandpack 
-  customSetup={sandpackCustomSetup}
+customSetup={sandpackCustomSetup}
 
-  options={{
-    activeFile: paths.Graph
-  }}
+options={{
+  activeFile: paths.Graph
+}}
 
-  files={{
-      [paths.Graph]: `import "@pixi/events";
+files={{
+    [paths.Graph]: `import "@pixi/events";
 
-    import { Stage } from "@pixi/react";
-    import React from "react";
-    import { createConnections } from "../logic/createConnections";
-    import { createEdges } from "../logic/createEdges";
-    import { createNodes, NodeType } from "../logic/createNodes";
-    import { fake_tags } from "../mocks/tags";
+  import { Stage } from "@pixi/react";
+  import React from "react";
+  import { createConnections } from "../logic/createConnections";
+  import { createEdges } from "../logic/createEdges";
+  import { createNodes, NodeType } from "../logic/createNodes";
+  import { fake_tags } from "../mocks/tags";
 
-    import style from "./Graph.module.scss";
-    import { Line } from "./Line";
-    import { Node } from "./Node";
+  import style from "./Graph.module.scss";
+  import { Line } from "./Line";
+  import { Node } from "./Node";
 
-    export const SCALE = 350;
-    export const RESOLUTION = 2;
+  export const SCALE = 350;
+  export const RESOLUTION = 2;
 
-    export const Graph: React.FC = () => {
-      const tags = fake_tags;
-      const connections = createConnections(tags);
-      const edges = createEdges(connections);
-      const [nodes, setNodes] = React.useState<NodeType[]>(
-        createNodes(connections)
-      );
-      console.log(nodes);
-      return (
-        <div className={style.wrapper}>
-          <section>
-            <Stage
-              width={SCALE}
-              height={SCALE}
-              options={{ resolution: RESOLUTION, antialias: true }}
-            >
-              {edges.map(({ source, target }) => {
-                const sourceNode = nodes.find((node) => node.key === source);
-                const targetNode = nodes.find((node) => node.key === target);
-                if (!sourceNode) return null;
-                if (!targetNode) return null;
-                return (
-                  <Line
-                    key={\`\${source}-\${target}\`}
-                    x1={sourceNode.position.x}
-                    y1={sourceNode.position.y}
-                    x2={targetNode.position.x}
-                    y2={targetNode.position.y}
-                    color={"#1e1e1e"}
-                  />
-                );
-              })}
-              {nodes.map((node) => {
-                return (
-                  <Node
-                    key={node.key}
-                    x={node.position.x}
-                    y={node.position.y}
-                    radius={5}
-                    opacity={1}
-                    id={node.key}
-                  />
-                );
-              })}
-            </Stage>
-          </section>
-        </div>
-      );
-    };`,
-    [paths.Node]: node_1,
-    [paths.Line]: line_final,
-    ...sandpackFiles.mocks,
-    ...sandpackFiles.logic,
-    ...sandpackFiles.base,
-  }}
+  export const Graph: React.FC = () => {
+    const tags = fake_tags;
+    const connections = createConnections(tags);
+    const edges = createEdges(connections);
+    const [nodes, setNodes] = React.useState<NodeType[]>(
+      createNodes(connections)
+    );
+    console.log(nodes);
+    return (
+      <div className={style.wrapper}>
+        <section>
+          <Stage
+            width={SCALE}
+            height={SCALE}
+            options={{ resolution: RESOLUTION, antialias: true }}
+          >
+            {edges.map(({ source, target }) => {
+              const sourceNode = nodes.find((node) => node.key === source);
+              const targetNode = nodes.find((node) => node.key === target);
+              if (!sourceNode) return null;
+              if (!targetNode) return null;
+              return (
+                <Line
+                  key={\`\${source}-\${target}\`}
+                  x1={sourceNode.position.x}
+                  y1={sourceNode.position.y}
+                  x2={targetNode.position.x}
+                  y2={targetNode.position.y}
+                  color={"#1e1e1e"}
+                />
+              );
+            })}
+            {nodes.map((node) => {
+              return (
+                <Node
+                  key={node.key}
+                  x={node.position.x}
+                  y={node.position.y}
+                  radius={5}
+                  opacity={1}
+                  id={node.key}
+                />
+              );
+            })}
+          </Stage>
+        </section>
+      </div>
+    );
+  };`,
+  [paths.Node]: node_1,
+  [paths.Line]: line_final,
+  ...sandpackFiles.mocks,
+  ...sandpackFiles.logic,
+  ...sandpackFiles.base,
+}}
 />
 
 ---
