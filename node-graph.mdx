@@ -44,9 +44,23 @@ export const sandpackCustomSetup = {
   }
 }
 
+export const paths = {
+  "Node": "components/Node.tsx",
+  "Border": "components/Border.tsx",
+  "Label": "components/Label.tsx",
+  "Graph": "components/Graph.tsx",
+  "Line": "components/Line.tsx",
+  "World": "components/World.tsx",
+  "Mouse": "components/Mouse.tsx",
+  "createConnections": "/logic/createConnections.ts",
+  "createNodes": "/logic/createNodes.ts",
+  "createEdges": "/logic/createEdges.ts",
+  "tags": "/mocks/tags.ts"
+}
+
 export const sandpackFiles = {
   base: {
-    "App.tsx": `import { Graph } from "./Graph/Graph";
+    "App.tsx": `import { Graph } from "./components/Graph";
 import "./styles.css";
 
 export default function App() {
@@ -92,7 +106,7 @@ button {
   cursor: pointer;
 }`,
 
-    "/Graph/Graph.module.scss": `.wrapper {
+    "components/Graph.module.scss": `.wrapper {
   display: flex;
   justify-content: center;
   align-self: center;
@@ -120,7 +134,7 @@ button {
 }`,
   },
   logic: {
-    "/logic/createConnections.ts": `export type Connections = Map<string, Set<string>>;
+    [paths.createConnections]: `export type Connections = Map<string, Set<string>>;
 
 export const createConnections = (tags: string[][]) => {
   const connections = new Map<string, Set<string>>();
@@ -141,7 +155,7 @@ export const createConnections = (tags: string[][]) => {
 };
 `,
 
-    "/logic/createNodes.ts": `import { SCALE } from "../Graph/Graph";
+    [paths.createNodes]: `import { SCALE } from "../components/Graph";
 import { Connections } from "./createConnections";
 
 export interface NodeType {
@@ -158,7 +172,7 @@ export const createNodes = (connections: Connections): NodeType[] => {
   return nodes;
 };`,
 
-    "/logic/createEdges.ts": `import type { Connections } from "./createConnections";
+    [paths.createEdges]: `import type { Connections } from "./createConnections";
 
 export interface Edge {
   source: string;
@@ -180,7 +194,7 @@ export const createEdges = (connections: Connections): Edge[] => {
 };`,
   },
   mocks: {
-    "/mocks/tags.ts": `export const fake_tags = [
+    [paths.tags]: `export const fake_tags = [
   ["socket.io", "three.js", "chess", "project"],
   ["react", "ui", "dial", "lab"],
   ["canvas", "socket.io", "three.js", "project"],
@@ -220,7 +234,7 @@ code={`npm install @types/matter-js sass --save-dev`}
 
 First, we'll create the graph component itself which contains the `Stage` from `pixi.js`.
 
-export const graph1 = `import '@pixi/events'
+export const graph_1 = `import '@pixi/events'
 
 import { Stage } from '@pixi/react'
 import React from 'react'
@@ -246,14 +260,14 @@ export const Graph: React.FC = () => {
 
 <CodeSnippet
 language="tsx"
-title="src/components/Graph/Graph.tsx"
-code={graph1}/>
+title={paths.Graph}
+code={graph_1}/>
 
 ### Basic Node
 
 Now, we'll can create a `Node` component that will be used to represent each tag. The `draw` function is how we draw the node on the canvas. Everytime the props change, the `draw` function will be called.
 
-export const node1 = `import { Graphics } from "@pixi/react";
+export const node_1 = `import { Graphics } from "@pixi/react";
 import type { ComponentProps } from "react";
 import React from "react";
 
@@ -279,22 +293,22 @@ export const Node = (props: NodeProps) => {
     [props]
   );
 
-  return <Graphics draw={draw} interactive />;
+  return <Graphics draw={draw} interactive cursor="pointer" />;
 };`
 
 <CodeSnippet
 language="tsx"
-title="src/components/Graph/Node.tsx"
-code={node1}
+title={paths.Node}
+code={node_1}
 />
 
 <Sandpack 
 options={{
-  activeFile: "/Graph/Graph.tsx"
+  activeFile: paths.Graph
 }}
 customSetup={sandpackCustomSetup}
 files={{
-  "/Graph/Graph.tsx": `import "@pixi/events";
+  [paths.Graph]: `import "@pixi/events";
 
 import { Stage } from "@pixi/react";
 import React from "react";
@@ -321,7 +335,7 @@ export const Graph: React.FC = () => {
   );
 };`,
 
-"/Graph/Node.tsx": node1,
+[paths.Node]: node_1,
 
 ...sandpackFiles.base
 }}
@@ -335,7 +349,7 @@ These are the tags from my blog posts. You can use your own tags or generate som
 
 <CodeSnippet
 language="ts"
-title="src/mocks/tags.ts"
+title={paths.tags}
 code={`export const fake_tags = [
   ["socket.io", "three.js", "chess", "project"],
   ["react", "ui", "dial", "lab"],
@@ -350,8 +364,8 @@ After that, import the data into your `Graph.tsx` file.
 
 <CodeSnippet
 language="tsx"
-title="src/components/Graph/Graph.tsx"
-oldCode={graph1}
+title={paths.Graph}
+oldCode={graph_1}
 code={`import '@pixi/events'
 
 import { Stage } from '@pixi/react'
@@ -412,7 +426,7 @@ For now, we'll just give the nodes a random position.
 
 <CodeSnippet
   language="ts"
-  title="src/logic/createNodes.ts"
+  title={paths.createNodes}
   code={`import { SCALE } from "../Graph/Graph";
   import { Connections } from "./createConnections";
 
@@ -434,10 +448,10 @@ For now, we'll just give the nodes a random position.
 <Sandpack 
   customSetup={sandpackCustomSetup}
   options={{
-  activeFile: "/Graph/Graph.tsx"
+  activeFile: paths.Graph
   }}
   files={{
-    "/Graph/Graph.tsx": `import "@pixi/events";
+    [paths.Graph]: `import "@pixi/events";
 
     import { Stage } from "@pixi/react";
     import React from "react";
@@ -482,38 +496,10 @@ For now, we'll just give the nodes a random position.
         </div>
       );
     };`,
-    "/Graph/Node.tsx": `import { Graphics } from "@pixi/react";
-    import type { ComponentProps } from "react";
-    import React from "react";
-
-    export type Draw = Exclude<ComponentProps<typeof Graphics>["draw"], undefined>;
-
-    interface NodeProps {
-      x: number;
-      y: number;
-      radius: number;
-      opacity: number;
-      id: string;
-    }
-
-    export const Node = (props: NodeProps) => {
-      const draw = React.useCallback<Draw>(
-        (g) => {
-          g.clear();
-          g.lineStyle(0);
-          g.beginFill("#a39af7");
-          g.drawCircle(props.x, props.y, props.radius);
-          g.endFill();
-        },
-        [props]
-      );
-
-      // @ts-ignore
-      return <Graphics draw={draw} interactive />;
-    };`,
+    [paths.Node]: node_1,
     ...sandpackFiles.mocks,
-    "/logic/createConnections.ts": sandpackFiles.logic["/logic/createConnections.ts"],
-    "/logic/createNodes.ts": sandpackFiles.logic["/logic/createNodes.ts"],
+    [paths.createConnections]: sandpackFiles.logic[paths.createConnections],
+    [paths.createNodes]: sandpackFiles.logic[paths.createNodes],
     ...sandpackFiles.base
   }}
 />
@@ -530,7 +516,7 @@ First, we'll create an array from the connections. Then we'll map over the array
 
 <CodeSnippet
   language="ts"
-  title="src/logic/createEdges.ts"
+  title={paths.createEdges}
   code={`import type { Connections } from './createConnections'
 
   export interface Edge {
@@ -557,10 +543,7 @@ First, we'll create an array from the connections. Then we'll map over the array
 
 Now we can create the `Line` component.
 
-<CodeSnippet
-  language="tsx"
-  title="src/components/Graph/Line.tsx"
-  code={`import { Graphics } from "@pixi/react";
+export const line_final = `import { Graphics } from "@pixi/react";
   import React from "react";
   import { Draw } from "./Node";
 
@@ -574,7 +557,7 @@ Now we can create the `Line` component.
     const draw = React.useCallback<Draw>(
       (g) => {
         g.clear();
-        g.lineStyle(1, "#ffffff", 1);
+        g.lineStyle(1, props.color, 1);
         g.moveTo(props.x1, props.y1);
         g.lineTo(props.x2, props.y2);
       },
@@ -583,7 +566,12 @@ Now we can create the `Line` component.
 
     return <Graphics draw={draw} />;
   };
-  `}
+  `
+
+<CodeSnippet
+  language="tsx"
+  title={paths.Line}
+  code={line_final}
 />
 
 The Dots have been Connected
@@ -592,11 +580,11 @@ The Dots have been Connected
   customSetup={sandpackCustomSetup}
 
   options={{
-    activeFile: "/Graph/Graph.tsx"
+    activeFile: paths.Graph
   }}
 
   files={{
-      "/Graph/Graph.tsx": `import "@pixi/events";
+      [paths.Graph]: `import "@pixi/events";
 
     import { Stage } from "@pixi/react";
     import React from "react";
@@ -661,59 +649,8 @@ The Dots have been Connected
         </div>
       );
     };`,
-    "/Graph/Node.tsx": `import { Graphics } from "@pixi/react";
-    import type { ComponentProps } from "react";
-    import React from "react";
-
-    export type Draw = Exclude<ComponentProps<typeof Graphics>["draw"], undefined>;
-
-    interface NodeProps {
-      x: number;
-      y: number;
-      radius: number;
-      opacity: number;
-      id: string;
-    }
-
-    export const Node = (props: NodeProps) => {
-      const draw = React.useCallback<Draw>(
-        (g) => {
-          g.clear();
-          g.lineStyle(0);
-          g.beginFill("#a39af7");
-          g.drawCircle(props.x, props.y, props.radius);
-          g.endFill();
-        },
-        [props]
-      );
-
-      // @ts-ignore
-      return <Graphics draw={draw} interactive />;
-    };`,
-    "/Graph/Line.tsx": `import { Graphics } from "@pixi/react";
-    import React from "react";
-    import { Draw } from "./Node";
-
-    export const Line = (props: {
-      x1: number;
-      y1: number;
-      x2: number;
-      y2: number;
-      color: string;
-    }) => {
-      const draw = React.useCallback<Draw>(
-        (g) => {
-          g.clear();
-          g.lineStyle(1, props.color, 1);
-          g.moveTo(props.x1, props.y1);
-          g.lineTo(props.x2, props.y2);
-        },
-        [props]
-      );
-
-      return <Graphics draw={draw} />;
-    };
-    `,
+    [paths.Node]: node_1,
+    [paths.Line]: line_final,
     ...sandpackFiles.mocks,
     ...sandpackFiles.logic,
     ...sandpackFiles.base,
@@ -732,7 +669,7 @@ The `World` is where we will create and store the physics engine. It will use `C
 
 We'll start by creating the context.
 
-export const world1 = `import React from 'react'
+export const world_1 = `import React from 'react'
 
 const EngineContext = React.createContext<Matter.Engine | null>(null)
 export const useEngine = () => React.useContext(EngineContext)
@@ -749,8 +686,8 @@ export const World: React.FC<{
 
 <CodeSnippet
   language="tsx"
-  title="src/components/Graph/World.tsx"
-  code={world1}
+  title={paths.World}
+  code={world_1}
 />
 
 Now that we have the context setup. We want to set the initial state of the engine. We'll do the following:
@@ -761,7 +698,7 @@ Now that we have the context setup. We want to set the initial state of the engi
     - This will make the nodes less bouncy.
     - Unfortunately, higher values will cause performance to decrease. So be careful not to set this too high.
 
-export const world2 = `import Matter from 'matter-js'
+export const world_2 = `import Matter from 'matter-js'
 import React from 'react'
 
 const EngineContext = React.createContext<Matter.Engine | null>(null)
@@ -784,18 +721,14 @@ export const World: React.FC<{
 
 <CodeSnippet
 language="tsx"
-title="src/components/Graph/World.tsx"
-oldCode={world1}
-code={world2}
+title={paths.World}
+oldCode={world_1}
+code={world_2}
 />
 
 Lastly, we'll tell the engine to update 60 times per second.
 
-<CodeSnippet
-language="tsx"
-title="src/components/Graph/World.tsx"
-oldCode={world2}
-code={`import { useTick } from '@pixi/react'
+export const world_final = `import { useTick } from '@pixi/react'
 import Matter from 'matter-js'
 import React from 'react'
 
@@ -817,13 +750,19 @@ export const World: React.FC<{
   return (
     <EngineContext.Provider value={engine}>{children}</EngineContext.Provider>
   )
-}`}/>
+}`
+
+<CodeSnippet
+language="tsx"
+title={paths.World}
+oldCode={world_2}
+code={world_final}/>
 
 ### Node Physics
 
 Let's add the physical representation of the nodes to the world. We'll start by updating the `Node` component to use the `useEngine` hook and add the refs that we'll be using to update the position of the nodes.
 
-export const node2 = `import type { Graphics as PIXIGraphics } from "@pixi/graphics";
+export const node_2 = `import type { Graphics as PIXIGraphics } from "@pixi/graphics";
 import { Graphics } from "@pixi/react";
 import type { Body } from "matter-js";
 import React from "react";
@@ -844,18 +783,18 @@ export const Node = (props: NodeProps) => {
   const body = React.useRef<Body>(null) as React.MutableRefObject<Body>;
   const graphics = React.useRef<PIXIGraphics>(null);
 
-  return <Graphics draw={draw} interactive />;
+  return <Graphics draw={draw} interactive cursor="pointer" />;
 };`
 
 <CodeSnippet
 language="tsx"
-title="src/components/Graph/Node.tsx"
-oldCode={node1}
-code={node2} />
+title={paths.Node}
+oldCode={node_1}
+code={node_2} />
 
 Now, we'll use the `Matter.World.Add` function to add the bodies (The physical representation of the node), to the world.
 
-export const node3 = `import type { Graphics as PIXIGraphics } from "@pixi/graphics";
+export const node_3 = `import type { Graphics as PIXIGraphics } from "@pixi/graphics";
 import { Graphics } from "@pixi/react";
 import type { Body } from "matter-js";
 import Matter from "matter-js";
@@ -900,20 +839,20 @@ export const Node = (props: NodeProps) => {
     };
   }, []);
 
-  return <Graphics ref={graphics} interactive />;
+  return <Graphics ref={graphics} interactive cursor="pointer" />;
 };`
 
 <CodeSnippet
 language="tsx"
-title="src/components/Graph/Node.tsx"
-oldCode={node2}
-code={node3}/>
+title={paths.Node}
+oldCode={node_2}
+code={node_3}/>
 
 Next, we'll use the `useTick` hook to draw the positions of the physical nodes. 
 
 > NOTE: I'm subtracting `15` from the radius so that the nodes never actually hit each other. This creates a force field around the nodes.
 
-export const node4 = `import type { Graphics as PIXIGraphics } from "@pixi/graphics";
+export const node_4 = `import type { Graphics as PIXIGraphics } from "@pixi/graphics";
 import { Graphics, useTick } from "@pixi/react";
 import type { Body } from "matter-js";
 import Matter from "matter-js";
@@ -980,14 +919,14 @@ export const Node = (props: NodeProps) => {
     };
   }, []);
 
-  return <Graphics ref={graphics} interactive />;
+  return <Graphics ref={graphics} interactive cursor="pointer" />;
 };`
 
 <CodeSnippet
 language="tsx"
-title="src/components/Graph/Node.tsx"
-oldCode={node3}
-code={node4}/>
+title={paths.Node}
+oldCode={node_3}
+code={node_4}/>
 
 ### Updating the Position
 
@@ -995,11 +934,7 @@ The nodes will move around has they should without needing to store their positi
 
 To avoid updating the position too often and causing performance issues, we'll only update the position if the node has moved more than `0.1` units. To do this, we'll store the last position of the node in a ref. Then, we'll compare the current position with the last position. If the difference is greater than `0.1`, we'll update the position in the state.
 
-<CodeSnippet
-language="tsx"
-title="src/components/Graph/Node.tsx"
-oldCode={node4}
-code={`import type { Graphics as PIXIGraphics } from "@pixi/graphics";
+export const node_final = `import type { Graphics as PIXIGraphics } from "@pixi/graphics";
 import { Graphics, useTick } from "@pixi/react";
 import type { Body } from "matter-js";
 import Matter from "matter-js";
@@ -1088,15 +1023,21 @@ export const Node = (props: NodeProps) => {
     };
   }, []);
 
-  return <Graphics ref={graphics} interactive />;
-};`}
+  return <Graphics ref={graphics} interactive cursor="pointer" />;
+};`
+
+<CodeSnippet
+language="tsx"
+title={paths.Node}
+oldCode={node_4}
+code={node_final}
 />
 
 ## Mouse Interaction
 
 Now that the nodes are connected to the physics engine, we can add mouse interaction. We'll start by creating a new component called `Mouse`.
 
-export const mouse1 = `import { useApp } from "@pixi/react";
+export const mouse_1 = `import { useApp } from "@pixi/react";
 import React from "react";
 
 import { useEngine } from "./World";
@@ -1112,18 +1053,14 @@ export const Mouse: React.FC<{
 
 <CodeSnippet
 language="tsx"
-title="src/components/Graph/Mouse.tsx"
-code={mouse1} />
+title={paths.Mouse}
+code={mouse_1} />
 
 Now we'll use the `Matter.Mouse.create` function to create a new mouse object. We'll also create a new mouse constraint object using the `Matter.MouseConstraint.create` function. This will allow us to interact with the nodes.
 
 Setting the scale of the mouse is also important. If the scale is incorrect, the physical part of the node will be offset from the visual part.
 
-<CodeSnippet
-language="tsx"
-title="src/components/Graph/Mouse.tsx"
-oldCode={mouse1}
-code={`import { useApp } from "@pixi/react";
+export const mouse_final = `import { useApp } from "@pixi/react";
 import Matter from "matter-js";
 import React from "react";
 import { RESOLUTION } from "./Graph";
@@ -1155,7 +1092,13 @@ export const Mouse: React.FC<{
   }, []);
 
   return <React.Fragment>{children}</React.Fragment>;
-};`}
+};`
+
+<CodeSnippet
+language="tsx"
+title={paths.Mouse}
+oldCode={mouse_1}
+code={mouse_final} />
  />
 
 After adding the `Mouse` to the `Graph` component, you should be able to drag the nodes around and have them collide with each other.
@@ -1166,70 +1109,15 @@ Test it out!
 customSetup={sandpackCustomSetup}
 
 options={{
-  activeFile: "/Graph/Graph.tsx"
+  activeFile: paths.Graph
 }}
 
 files={{
-  "/Graph/Mouse.tsx": `import { useApp } from "@pixi/react";
-import Matter from "matter-js";
-import React from "react";
-import { RESOLUTION } from "./Graph";
+[paths.Mouse]: mouse_final,
 
-import { useEngine } from "./World";
+[paths.World]: world_final,
 
-export const Mouse: React.FC<{
-  children: React.ReactNode;
-}> = ({ children }) => {
-  const app = useApp();
-  const engine = useEngine();
-
-  React.useEffect(() => {
-    if (!engine) return;
-    const mouse = Matter.Mouse.create(app.view as HTMLCanvasElement);
-    const mouseConstraint = Matter.MouseConstraint.create(engine, {
-      mouse,
-      constraint: { stiffness: 0.2 },
-    });
-
-    const scale = RESOLUTION / Math.pow(RESOLUTION, 2);
-    Matter.Mouse.setScale(mouse, { x: scale, y: scale });
-
-    Matter.World.add(engine.world, mouseConstraint);
-
-    return () => {
-      Matter.World.remove(engine.world, mouseConstraint);
-    };
-  }, []);
-
-  return <React.Fragment>{children}</React.Fragment>;
-};`,
-
-"/Graph/World.tsx": `import { useTick } from "@pixi/react";
-import Matter from "matter-js";
-import React from "react";
-
-const EngineContext = React.createContext<Matter.Engine | null>(null);
-export const useEngine = () => React.useContext(EngineContext);
-
-export const World: React.FC<{
-  children: React.ReactNode;
-}> = ({ children }) => {
-  const [engine] = React.useState(() => Matter.Engine.create());
-
-  React.useEffect(() => {
-    engine.gravity.y = 0;
-    engine.constraintIterations = 7;
-
-  }, [engine]);
-
-  useTick((delta) => Matter.Engine.update(engine, delta * (1000 / 60)));
-
-  return (
-    <EngineContext.Provider value={engine}>{children}</EngineContext.Provider>
-  );
-};`,
-
-  "/Graph/Graph.tsx": `import "@pixi/events";
+[paths.Graph]: `import "@pixi/events";
 
 import { Stage } from "@pixi/react";
 import React from "react";
@@ -1302,122 +1190,9 @@ export const Graph: React.FC = () => {
 };
 `,
 
-"/Graph/Node.tsx": `import type { Graphics as PIXIGraphics } from "@pixi/graphics";
-import { Graphics, useTick } from "@pixi/react";
-import type { Body } from "matter-js";
-import Matter from "matter-js";
-import React from "react";
-import { NodeType } from "../logic/createNodes";
+[paths.Node]: node_final,
 
-import { useEngine } from "./World";
-
-export const extractCoordinates = (vertice: {
-  x: number;
-  y: number;
-}): [number, number] => [vertice.x, vertice.y];
-
-interface NodeProps {
-  x: number;
-  y: number;
-  radius: number;
-  id: string;
-  setNodes: React.Dispatch<React.SetStateAction<NodeType[]>>;
-}
-
-export const Node = (props: NodeProps) => {
-  const engine = useEngine();
-  const body = React.useRef<Body>(null) as React.MutableRefObject<Body>;
-  const graphics = React.useRef<PIXIGraphics>(null);
-  const lastPosition = React.useRef({ x: props.x, y: props.y });
-
-  useTick(() => {
-    const g = graphics.current;
-    const b = body.current;
-
-    if (!g) return;
-
-    g.clear();
-
-    g.lineStyle(0);
-
-    g.moveTo(...extractCoordinates(b.vertices[0]));
-    for (var j = 1; j < b.vertices.length; j += 1) {
-      g.lineTo(...extractCoordinates(b.vertices[j]));
-    }
-    g.lineTo(...extractCoordinates(b.vertices[0]));
-
-    g.alpha = 1;
-    g.lineStyle(0);
-    g.beginFill(\`#a39af7\`);
-    g.drawCircle(b.position.x, b.position.y, props.radius - 15);
-
-    if (
-      Math.abs(lastPosition.current.x - b.position.x) > 0.1 ||
-      Math.abs(lastPosition.current.y - b.position.y) > 0.1
-    ) {
-      lastPosition.current = { x: b.position.x, y: b.position.y };
-      props.setNodes((prev: NodeType[]) => {
-        return prev.map((node) => {
-          if (node.key === props.id) {
-            return {
-              ...node,
-              position: {
-                x: b.position.x,
-                y: b.position.y,
-              },
-            };
-          }
-          return node;
-        });
-      });
-    }
-  });
-
-  React.useEffect(() => {
-    if (!engine) return;
-
-    body.current = Matter.Bodies.circle(...[props.x, props.y, props.radius], {
-      friction: 1,
-      density: 0.1,
-      restitution: 0,
-      frictionAir: 0.09,
-      frictionStatic: 1,
-    });
-
-    Matter.World.add(engine.world, body.current);
-
-    return () => {
-      Matter.World.remove(engine.world, body.current);
-    };
-  }, []);
-
-  return <Graphics ref={graphics} interactive />;
-};`,
-
-"/Graph/Line.tsx": `import { Graphics } from "@pixi/react";
-import React from "react";
-import { Draw } from "./Node";
-
-export const Line = (props: {
-  x1: number;
-  y1: number;
-  x2: number;
-  y2: number;
-  color: string;
-}) => {
-  const draw = React.useCallback<Draw>(
-    (g) => {
-      g.clear();
-      g.lineStyle(1, props.color, 1);
-      g.moveTo(props.x1, props.y1);
-      g.lineTo(props.x2, props.y2);
-    },
-    [props]
-  );
-
-  return <Graphics draw={draw} />;
-};
-`,
+[paths.Line]: line_final,
 
 ...sandpackFiles.mocks,
 ...sandpackFiles.logic,
@@ -1434,10 +1209,7 @@ To prevent the nodes from leaving the canvas, we'll add a border around the canv
 
 It's really just four static rectangles that will act as the border. We'll add them to the `Graph` component.
 
-<CodeSnippet
-language="tsx"
-title="src/components/Graph/Border.tsx"
-code={`import type { Graphics as PIXIGraphics } from "@pixi/graphics";
+export const border_final = `import type { Graphics as PIXIGraphics } from "@pixi/graphics";
 import { Container, Graphics, useTick } from "@pixi/react";
 import type { Body, IChamferableBodyDefinition } from "matter-js";
 import Matter from "matter-js";
@@ -1515,7 +1287,12 @@ const Shape = ({
 
   return <Graphics ref={graphics} />;
 };
-`}/>
+`
+
+<CodeSnippet
+language="tsx"
+title={paths.Border}
+code={border_final} />
 
 Try it out for yourself!
 
@@ -1523,150 +1300,15 @@ Try it out for yourself!
 customSetup={sandpackCustomSetup}
 
 options={{
-  activeFile: "/Graph/Graph.tsx"
+  activeFile: paths.Graph
 }}
 
 files={{
-  "/Graph/Border.tsx": `import type { Graphics as PIXIGraphics } from "@pixi/graphics";
-import { Container, Graphics, useTick } from "@pixi/react";
-import type { Body, IChamferableBodyDefinition } from "matter-js";
-import Matter from "matter-js";
-import React from "react";
-import { SCALE } from "./Graph";
-import { extractCoordinates } from "./Node";
+  [paths.Border]: border_final,
+  [paths.Mouse]: mouse_final,
+[paths.World]: world_final,
 
-import { useEngine } from "./World";
-
-const Border_Internal: React.FC = () => {
-  const s = SCALE;
-  return (
-    <Container>
-      <Shape
-        config={{ x: s / 2, y: s + 50, width: s, height: 100 }}
-        options={{ isStatic: true }}
-      />
-      <Shape
-        config={{ x: s / 2, y: -50, width: s, height: 100 }}
-        options={{ isStatic: true }}
-      />
-      <Shape
-        config={{ x: -50, y: s / 2, width: 100, height: s }}
-        options={{ isStatic: true }}
-      />
-      <Shape
-        config={{ x: s + 50, y: s / 2, width: 100, height: s }}
-        options={{ isStatic: true }}
-      />
-    </Container>
-  );
-};
-
-export const Border = React.memo(Border_Internal);
-
-const Shape = ({
-  config,
-  options = {},
-}: {
-  config: { x: number; y: number; width: number; height: number };
-  options?: IChamferableBodyDefinition;
-}) => {
-  const engine = useEngine();
-  const body = React.useRef<Body>(null) as React.MutableRefObject<Body>;
-  const graphics = React.useRef<PIXIGraphics>(null);
-
-  useTick(() => {
-    const g = graphics.current;
-    const b = body.current;
-
-    if (!g) return;
-
-    g.clear();
-
-    g.moveTo(...extractCoordinates(b.vertices[0]));
-    for (var j = 1; j < b.vertices.length; j += 1)
-      g.lineTo(...extractCoordinates(b.vertices[j]));
-    g.lineTo(...extractCoordinates(b.vertices[0]));
-  });
-
-  React.useEffect(() => {
-    if (!engine) return;
-
-    body.current = Matter.Bodies.rectangle(
-      ...[config.x, config.y, config.width, config.height],
-      options
-    );
-
-    Matter.World.add(engine.world, body.current);
-
-    return () => {
-      Matter.World.remove(engine.world, body.current);
-    };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
-
-  return <Graphics ref={graphics} />;
-};
-`,
-  "/Graph/Mouse.tsx": `import { useApp } from "@pixi/react";
-import Matter from "matter-js";
-import React from "react";
-import { RESOLUTION } from "./Graph";
-
-import { useEngine } from "./World";
-
-export const Mouse: React.FC<{
-  children: React.ReactNode;
-}> = ({ children }) => {
-  const app = useApp();
-  const engine = useEngine();
-
-  React.useEffect(() => {
-    if (!engine) return;
-    const mouse = Matter.Mouse.create(app.view as HTMLCanvasElement);
-    const mouseConstraint = Matter.MouseConstraint.create(engine, {
-      mouse,
-      constraint: { stiffness: 0.2 },
-    });
-
-    const scale = RESOLUTION / Math.pow(RESOLUTION, 2);
-    Matter.Mouse.setScale(mouse, { x: scale, y: scale });
-
-    Matter.World.add(engine.world, mouseConstraint);
-
-    return () => {
-      Matter.World.remove(engine.world, mouseConstraint);
-    };
-  }, []);
-
-  return <React.Fragment>{children}</React.Fragment>;
-};`,
-
-"/Graph/World.tsx": `import { useTick } from "@pixi/react";
-import Matter from "matter-js";
-import React from "react";
-
-const EngineContext = React.createContext<Matter.Engine | null>(null);
-export const useEngine = () => React.useContext(EngineContext);
-
-export const World: React.FC<{
-  children: React.ReactNode;
-}> = ({ children }) => {
-  const [engine] = React.useState(() => Matter.Engine.create());
-
-  React.useEffect(() => {
-    engine.gravity.y = 0;
-    engine.constraintIterations = 7;
-
-  }, [engine]);
-
-  useTick((delta) => Matter.Engine.update(engine, delta * (1000 / 60)));
-
-  return (
-    <EngineContext.Provider value={engine}>{children}</EngineContext.Provider>
-  );
-};`,
-
-  "/Graph/Graph.tsx": `import "@pixi/events";
+  [paths.Graph]: `import "@pixi/events";
 
 import { Stage } from "@pixi/react";
 import React from "react";
@@ -1741,122 +1383,9 @@ export const Graph: React.FC = () => {
   );
 };`,
 
-"/Graph/Node.tsx": `import type { Graphics as PIXIGraphics } from "@pixi/graphics";
-import { Graphics, useTick } from "@pixi/react";
-import type { Body } from "matter-js";
-import Matter from "matter-js";
-import React from "react";
-import { NodeType } from "../logic/createNodes";
+[paths.Node]: node_final,
 
-import { useEngine } from "./World";
-
-export const extractCoordinates = (vertice: {
-  x: number;
-  y: number;
-}): [number, number] => [vertice.x, vertice.y];
-
-interface NodeProps {
-  x: number;
-  y: number;
-  radius: number;
-  id: string;
-  setNodes: React.Dispatch<React.SetStateAction<NodeType[]>>;
-}
-
-export const Node = (props: NodeProps) => {
-  const engine = useEngine();
-  const body = React.useRef<Body>(null) as React.MutableRefObject<Body>;
-  const graphics = React.useRef<PIXIGraphics>(null);
-  const lastPosition = React.useRef({ x: props.x, y: props.y });
-
-  useTick(() => {
-    const g = graphics.current;
-    const b = body.current;
-
-    if (!g) return;
-
-    g.clear();
-
-    g.lineStyle(0);
-
-    g.moveTo(...extractCoordinates(b.vertices[0]));
-    for (var j = 1; j < b.vertices.length; j += 1) {
-      g.lineTo(...extractCoordinates(b.vertices[j]));
-    }
-    g.lineTo(...extractCoordinates(b.vertices[0]));
-
-    g.alpha = 1;
-    g.lineStyle(0);
-    g.beginFill(\`#a39af7\`);
-    g.drawCircle(b.position.x, b.position.y, props.radius - 15);
-
-    if (
-      Math.abs(lastPosition.current.x - b.position.x) > 0.1 ||
-      Math.abs(lastPosition.current.y - b.position.y) > 0.1
-    ) {
-      lastPosition.current = { x: b.position.x, y: b.position.y };
-      props.setNodes((prev: NodeType[]) => {
-        return prev.map((node) => {
-          if (node.key === props.id) {
-            return {
-              ...node,
-              position: {
-                x: b.position.x,
-                y: b.position.y,
-              },
-            };
-          }
-          return node;
-        });
-      });
-    }
-  });
-
-  React.useEffect(() => {
-    if (!engine) return;
-
-    body.current = Matter.Bodies.circle(...[props.x, props.y, props.radius], {
-      friction: 1,
-      density: 0.1,
-      restitution: 0,
-      frictionAir: 0.09,
-      frictionStatic: 1,
-    });
-
-    Matter.World.add(engine.world, body.current);
-
-    return () => {
-      Matter.World.remove(engine.world, body.current);
-    };
-  }, []);
-
-  return <Graphics ref={graphics} interactive />;
-};`,
-
-"/Graph/Line.tsx": `import { Graphics } from "@pixi/react";
-import React from "react";
-import { Draw } from "./Node";
-
-export const Line = (props: {
-  x1: number;
-  y1: number;
-  x2: number;
-  y2: number;
-  color: string;
-}) => {
-  const draw = React.useCallback<Draw>(
-    (g) => {
-      g.clear();
-      g.lineStyle(1, props.color, 1);
-      g.moveTo(props.x1, props.y1);
-      g.lineTo(props.x2, props.y2);
-    },
-    [props]
-  );
-
-  return <Graphics draw={draw} />;
-};
-`,
+[paths.Line]: line_final,
 
 ...sandpackFiles.mocks,
 ...sandpackFiles.logic,
@@ -1873,10 +1402,7 @@ The Graph functions as it should but I'm going to add a few final touches to mak
 
 I'll add labels to the nodes so that you can see what each node represents.
 
-<CodeSnippet
-language="tsx"
-title="src/components/Graph/Label.tsx"
-code={`import { Text } from "@pixi/react";
+export const label_final = `import { Text } from "@pixi/react";
 
 export const Label = (props: {
   text: string;
@@ -1902,13 +1428,18 @@ export const Label = (props: {
       }}
     />
   );
-};`} />
+};`
+
+<CodeSnippet
+language="tsx"
+title={paths.Label}
+code={label_final} />
 
 And then when we map through the nodes, we'll add the labels.
 
 <CodeSnippet
 language="tsx"
-title="src/components/Graph/Graph.tsx"
+title={paths.Graph}
 startLine={57}
 code={`
 {
@@ -1936,15 +1467,6 @@ code={`
 }
 `}/>
 
-### Hover
-
-Lastly, when we hover a node I want the cursor to change to a pointer. So we'll add `cursor={'pointer'}` to the `Node` component.
-
-<CodeSnippet
-language="tsx"
-title="src/components/Graph/Node.tsx"
-code={`return <Graphics ref={graphics} interactive cursor={'pointer'} />;`} />
-
 ---
 
 ## Result
@@ -1955,178 +1477,17 @@ And that's it! We've create a graph similar to the one used in Obsidian.
 customSetup={sandpackCustomSetup}
 
 options={{
-  activeFile: "/Graph/Graph.tsx"
+  activeFile: paths.Graph
 }}
 
 files={{
-  "/Graph/Border.tsx": `import type { Graphics as PIXIGraphics } from "@pixi/graphics";
-import { Container, Graphics, useTick } from "@pixi/react";
-import type { Body, IChamferableBodyDefinition } from "matter-js";
-import Matter from "matter-js";
-import React from "react";
-import { SCALE } from "./Graph";
-import { extractCoordinates } from "./Node";
+  [paths.Border]: border_final,
+  [paths.Label]: label_final,
+  [paths.Mouse]: mouse_final,
 
-import { useEngine } from "./World";
+[paths.World]: world_final,
 
-const Border_Internal: React.FC = () => {
-  const s = SCALE;
-  return (
-    <>
-      <Shape
-        config={{ x: s / 2, y: s + 50, width: s, height: 100 }}
-        options={{ isStatic: true }}
-      />
-      <Shape
-        config={{ x: s / 2, y: -50, width: s, height: 100 }}
-        options={{ isStatic: true }}
-      />
-      <Shape
-        config={{ x: -50, y: s / 2, width: 100, height: s }}
-        options={{ isStatic: true }}
-      />
-      <Shape
-        config={{ x: s + 50, y: s / 2, width: 100, height: s }}
-        options={{ isStatic: true }}
-      />
-    </>
-  );
-};
-
-export const Border = Border_Internal;
-
-export const Shape = ({
-  config,
-  options = {},
-}: {
-  config: { x: number; y: number; width: number; height: number };
-  options?: IChamferableBodyDefinition;
-}) => {
-  const engine = useEngine();
-  const body = React.useRef<Body>(null) as React.MutableRefObject<Body>;
-  const graphics = React.useRef<PIXIGraphics>(null);
-
-  useTick(() => {
-    const g = graphics.current;
-    const b = body.current;
-
-    if (!g) return;
-
-    g.clear();
-    g.beginFill(\`#a39af7\`);
-    g.moveTo(...extractCoordinates(b.vertices[0]));
-    for (var j = 1; j < b.vertices.length; j += 1)
-      g.lineTo(...extractCoordinates(b.vertices[j]));
-    g.lineTo(...extractCoordinates(b.vertices[0]));
-  });
-
-  React.useEffect(() => {
-    if (!engine) return;
-    console.log("start");
-
-    body.current = Matter.Bodies.rectangle(
-      ...[config.x, config.y, config.width, config.height],
-      options
-    );
-
-    Matter.World.add(engine.world, body.current);
-
-    // return () => {
-    //   console.log("return");
-    //   Matter.World.remove(engine.world, body.current);
-    // };
-  }, [config, engine]);
-
-  return <Graphics ref={graphics} />;
-};
-`,
-  "/Graph/Label.tsx": `import { Text } from "@pixi/react";
-
-export const Label = (props: {
-  text: string;
-  x: number;
-  y: number;
-  opacity: number;
-  anchor: number;
-  color: string;
-}) => {
-  return (
-    <Text
-      text={props.text}
-      x={props.x}
-      y={props.y}
-      anchor={props.anchor}
-      // @ts-expect-error
-      style={{
-        fontFamily: "Arial",
-        fontSize: 12,
-        fill: props.color,
-        fontWeight: "400",
-        align: "center",
-      }}
-    />
-  );
-};`,
-  "/Graph/Mouse.tsx": `import { useApp } from "@pixi/react";
-import Matter from "matter-js";
-import React from "react";
-import { RESOLUTION } from "./Graph";
-
-import { useEngine } from "./World";
-
-export const Mouse: React.FC<{
-  children: React.ReactNode;
-}> = ({ children }) => {
-  const app = useApp();
-  const engine = useEngine();
-
-  React.useEffect(() => {
-    if (!engine) return;
-    const mouse = Matter.Mouse.create(app.view as HTMLCanvasElement);
-    const mouseConstraint = Matter.MouseConstraint.create(engine, {
-      mouse,
-      constraint: { stiffness: 0.2 },
-    });
-
-    const scale = RESOLUTION / Math.pow(RESOLUTION, 2);
-    Matter.Mouse.setScale(mouse, { x: scale, y: scale });
-
-    Matter.World.add(engine.world, mouseConstraint);
-
-    return () => {
-      Matter.World.remove(engine.world, mouseConstraint);
-    };
-  }, []);
-
-  return <React.Fragment>{children}</React.Fragment>;
-};`,
-
-"/Graph/World.tsx": `import { useTick } from "@pixi/react";
-import Matter from "matter-js";
-import React from "react";
-
-const EngineContext = React.createContext<Matter.Engine | null>(null);
-export const useEngine = () => React.useContext(EngineContext);
-
-export const World: React.FC<{
-  children: React.ReactNode;
-}> = ({ children }) => {
-  const [engine] = React.useState(() => Matter.Engine.create());
-
-  React.useEffect(() => {
-    engine.gravity.y = 0;
-    engine.constraintIterations = 7;
-
-  }, [engine]);
-
-  useTick((delta) => Matter.Engine.update(engine, delta * (1000 / 60)));
-
-  return (
-    <EngineContext.Provider value={engine}>{children}</EngineContext.Provider>
-  );
-};`,
-
-  "/Graph/Graph.tsx": `import "@pixi/events";
+  [paths.Graph]: `import "@pixi/events";
 
 import { Stage } from "@pixi/react";
 import React from "react";
@@ -2212,122 +1573,9 @@ export const Graph: React.FC = () => {
 };
 `,
 
-"/Graph/Node.tsx": `import type { Graphics as PIXIGraphics } from "@pixi/graphics";
-import { Graphics, useTick } from "@pixi/react";
-import type { Body } from "matter-js";
-import Matter from "matter-js";
-import React from "react";
-import { NodeType } from "../logic/createNodes";
+[paths.Node]: node_final,
 
-import { useEngine } from "./World";
-
-export const extractCoordinates = (vertice: {
-  x: number;
-  y: number;
-}): [number, number] => [vertice.x, vertice.y];
-
-interface NodeProps {
-  x: number;
-  y: number;
-  radius: number;
-  id: string;
-  setNodes: React.Dispatch<React.SetStateAction<NodeType[]>>;
-}
-
-export const Node = (props: NodeProps) => {
-  const engine = useEngine();
-  const body = React.useRef<Body>(null) as React.MutableRefObject<Body>;
-  const graphics = React.useRef<PIXIGraphics>(null);
-  const lastPosition = React.useRef({ x: props.x, y: props.y });
-
-  useTick(() => {
-    const g = graphics.current;
-    const b = body.current;
-
-    if (!g) return;
-
-    g.clear();
-
-    g.lineStyle(0);
-
-    g.moveTo(...extractCoordinates(b.vertices[0]));
-    for (var j = 1; j < b.vertices.length; j += 1) {
-      g.lineTo(...extractCoordinates(b.vertices[j]));
-    }
-    g.lineTo(...extractCoordinates(b.vertices[0]));
-
-    g.alpha = 1;
-    g.lineStyle(0);
-    g.beginFill(\`#a39af7\`);
-    g.drawCircle(b.position.x, b.position.y, props.radius - 15);
-
-    if (
-      Math.abs(lastPosition.current.x - b.position.x) > 0.1 ||
-      Math.abs(lastPosition.current.y - b.position.y) > 0.1
-    ) {
-      lastPosition.current = { x: b.position.x, y: b.position.y };
-      props.setNodes((prev: NodeType[]) => {
-        return prev.map((node) => {
-          if (node.key === props.id) {
-            return {
-              ...node,
-              position: {
-                x: b.position.x,
-                y: b.position.y,
-              },
-            };
-          }
-          return node;
-        });
-      });
-    }
-  });
-
-  React.useEffect(() => {
-    if (!engine) return;
-
-    body.current = Matter.Bodies.circle(...[props.x, props.y, props.radius], {
-      friction: 1,
-      density: 0.1,
-      restitution: 0,
-      frictionAir: 0.09,
-      frictionStatic: 1,
-    });
-
-    Matter.World.add(engine.world, body.current);
-
-    return () => {
-      Matter.World.remove(engine.world, body.current);
-    };
-  }, []);
-
-  return <Graphics ref={graphics} interactive cursor={'pointer'} />;
-};`,
-
-"/Graph/Line.tsx": `import { Graphics } from "@pixi/react";
-import React from "react";
-import { Draw } from "./Node";
-
-export const Line = (props: {
-  x1: number;
-  y1: number;
-  x2: number;
-  y2: number;
-  color: string;
-}) => {
-  const draw = React.useCallback<Draw>(
-    (g) => {
-      g.clear();
-      g.lineStyle(1, props.color, 1);
-      g.moveTo(props.x1, props.y1);
-      g.lineTo(props.x2, props.y2);
-    },
-    [props]
-  );
-
-  return <Graphics draw={draw} />;
-};
-`,
+[paths.Line]: line_final,
 
 ...sandpackFiles.mocks,
 ...sandpackFiles.logic,
