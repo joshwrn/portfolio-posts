@@ -308,32 +308,7 @@ options={{
 }}
 customSetup={sandpackCustomSetup}
 files={{
-  [paths.Graph]: `import "@pixi/events";
-
-import { Stage } from "@pixi/react";
-import React from "react";
-
-import style from "./Graph.module.scss";
-import { Node } from "./Node";
-
-export const SCALE = 350;
-export const RESOLUTION = 2;
-
-export const Graph: React.FC = () => {
-  return (
-    <div className={style.wrapper}>
-      <section>
-        <Stage
-          width={SCALE}
-          height={SCALE}
-          options={{ resolution: RESOLUTION, antialias: true }}
-        >
-          <Node x={SCALE / 2} y={SCALE / 2} radius={5} opacity={1} id={"1"} />
-        </Stage>
-      </section>
-    </div>
-  );
-};`,
+[paths.Graph]: graph_1,
 [paths.Node]: node_1,
 ...sandpackFiles.base
 }}
@@ -348,23 +323,12 @@ These are the tags from my blog posts. You can use your own tags or generate som
 <CodeSnippet
 language="ts"
 title={paths.tags}
-code={`export const fake_tags = [
-  ["socket.io", "three.js", "chess", "project"],
-  ["react", "ui", "dial", "lab"],
-  ["canvas", "socket.io", "three.js", "project"],
-  ["next.js", "movies", "tmdb", "project"],
-  ["canvas", "ui", "graph", "lab"],
-  ["dev-tools", "react", "recoil", "project"],
-];`}
+code={sandpackFiles.mocks[paths.tags]}
 />
 
 After that, import the data into your `Graph.tsx` file.
 
-<CodeSnippet
-language="tsx"
-title={paths.Graph}
-oldCode={graph_1}
-code={`import '@pixi/events'
+export const graph_2 = `import '@pixi/events'
 
 import { Stage } from '@pixi/react'
 import React from 'react'
@@ -388,7 +352,13 @@ export const Graph: React.FC = () => {
       </section>
     </div>
   )
-}`}
+}`
+
+<CodeSnippet
+language="tsx"
+title={paths.Graph}
+oldCode={graph_1}
+code={graph_2}
 />
 
 ### Connections
@@ -397,26 +367,9 @@ Now let's figure out which tags are connected to each other. Later, this functio
 
 <CodeSnippet
 language="ts"
-title="src/logic/createConnections.ts"
-code={`export type Connections = Map<string, Set<string>>
-
-export const createConnections = (tags: string[][]) => {
-  const connections = new Map<string, Set<string>>()
-  tags.forEach((tagList) => {
-    tagList.forEach((tag) => {
-      if (!connections.has(tag)) {
-        connections.set(tag, new Set())
-      }
-      const newSet = connections.get(tag) ?? new Set()
-      tagList.forEach((otherTag) => {
-        if (tag === otherTag) return
-        newSet.add(otherTag)
-      })
-      connections.set(tag, newSet)
-    })
-  })
-  return connections
-}`}/>
+title={paths.createConnections}
+code={sandpackFiles.logic[paths.createConnections]}
+/>
 
 ### Giving the Nodes a Position
 
@@ -425,31 +378,10 @@ For now, we'll just give the nodes a random position.
 <CodeSnippet
 language="ts"
 title={paths.createNodes}
-code={`import { SCALE } from "../Graph/Graph";
-import { Connections } from "./createConnections";
-
-export interface NodeType {
-  key: string;
-  position: { x: number; y: number };
-}
-
-export const createNodes = (connections: Connections): NodeType[] => {
-  const nodeKeys = Array.from(connections.keys());
-  const nodes = nodeKeys.map((key) => ({
-    key,
-    position: { x: Math.random() * SCALE, y: Math.random() * SCALE },
-  }));
-  return nodes;
-};`}
+code={sandpackFiles.logic[paths.createNodes]}
 />
 
-<Sandpack 
-customSetup={sandpackCustomSetup}
-options={{
-activeFile: paths.Graph
-}}
-files={{
-[paths.Graph]: `import "@pixi/events";
+export const graph_3 = `import "@pixi/events";
 
 import { Stage } from "@pixi/react";
 import React from "react";
@@ -493,7 +425,15 @@ export const Graph: React.FC = () => {
       </section>
     </div>
   );
-};`,
+};`
+
+<Sandpack 
+customSetup={sandpackCustomSetup}
+options={{
+activeFile: paths.Graph
+}}
+files={{
+[paths.Graph]: graph_3,
 [paths.Node]: node_1,
 ...sandpackFiles.mocks,
 [paths.createConnections]: sandpackFiles.logic[paths.createConnections],
@@ -515,26 +455,7 @@ First, we'll create an array from the connections. Then we'll map over the array
 <CodeSnippet
 language="ts"
 title={paths.createEdges}
-code={`import type { Connections } from './createConnections'
-
-export interface Edge {
-  source: string
-  target: string
-}
-export const createEdges = (connections: Connections): Edge[] => {
-  const edges = Array.from(connections.entries())
-    .map(([source, targets]) =>
-      [...targets].map((target) => ({ source, target }))
-    )
-    .flat()
-  const unique = new Set<string>()
-  const uniqueEdges = edges.filter(({ source, target }) => {
-    if (unique.has(\`\${target}-\${source}\`)) return false
-    unique.add(\`\${source}-\${target}\`)
-    return true
-  })
-  return uniqueEdges
-}`}
+code={sandpackFiles.logic[paths.createEdges]}
 />
 
 ### Component
@@ -574,13 +495,7 @@ code={line_final}
 
 The Dots have been Connected
 
-<Sandpack 
-customSetup={sandpackCustomSetup}
-options={{
-  activeFile: paths.Graph
-}}
-files={{
-[paths.Graph]: `import "@pixi/events";
+export const graph_4 = `import "@pixi/events";
 
 import { Stage } from "@pixi/react";
 import React from "react";
@@ -644,7 +559,15 @@ export const Graph: React.FC = () => {
       </section>
     </div>
   );
-};`,
+};`
+
+<Sandpack 
+customSetup={sandpackCustomSetup}
+options={{
+  activeFile: paths.Graph
+}}
+files={{
+[paths.Graph]: graph_4,
 [paths.Node]: node_1,
 [paths.Line]: line_final,
 ...sandpackFiles.mocks,
@@ -1101,15 +1024,7 @@ After adding the `Mouse` to the `Graph` component, you should be able to drag th
 
 Test it out!
 
-<Sandpack 
-customSetup={sandpackCustomSetup}
-options={{
-  activeFile: paths.Graph
-}}
-files={{
-[paths.Mouse]: mouse_final,
-[paths.World]: world_final,
-[paths.Graph]: `import "@pixi/events";
+export const graph_5 = `import "@pixi/events";
 
 import { Stage } from "@pixi/react";
 import React from "react";
@@ -1180,7 +1095,17 @@ export const Graph: React.FC = () => {
     </div>
   );
 };
-`,
+`
+
+<Sandpack 
+customSetup={sandpackCustomSetup}
+options={{
+  activeFile: paths.Graph
+}}
+files={{
+[paths.Mouse]: mouse_final,
+[paths.World]: world_final,
+[paths.Graph]: graph_5,
 [paths.Node]: node_final,
 [paths.Line]: line_final,
 ...sandpackFiles.mocks,
@@ -1284,16 +1209,7 @@ code={border_final} />
 
 Try it out for yourself!
 
-<Sandpack 
-customSetup={sandpackCustomSetup}
-options={{
-  activeFile: paths.Graph
-}}
-files={{
-[paths.Border]: border_final,
-[paths.Mouse]: mouse_final,
-[paths.World]: world_final,
-  [paths.Graph]: `import "@pixi/events";
+export const graph_6 = `import "@pixi/events";
 
 import { Stage } from "@pixi/react";
 import React from "react";
@@ -1313,60 +1229,71 @@ export const SCALE = 350;
 export const RESOLUTION = 2;
 
 export const Graph: React.FC = () => {
-  const tags = fake_tags;
-  const connections = createConnections(tags);
-  const edges = createEdges(connections);
-  const [nodes, setNodes] = React.useState<NodeType[]>(
-    createNodes(connections)
-  );
-  console.log(nodes);
-  return (
-    <div className={style.wrapper}>
-      <section>
-        <Stage
-          width={SCALE}
-          height={SCALE}
-          options={{ resolution: RESOLUTION, antialias: true }}
-        >
-          <World>
-            <Mouse>
-              <Border />
-              {edges.map(({ source, target }) => {
-                const sourceNode = nodes.find((node) => node.key === source);
-                const targetNode = nodes.find((node) => node.key === target);
-                if (!sourceNode) return null;
-                if (!targetNode) return null;
-                return (
-                  <Line
-                    key={\`\${source}-\${target}\`}
-                    x1={sourceNode.position.x}
-                    y1={sourceNode.position.y}
-                    x2={targetNode.position.x}
-                    y2={targetNode.position.y}
-                    color={"#1e1e1e"}
+const tags = fake_tags;
+const connections = createConnections(tags);
+const edges = createEdges(connections);
+const [nodes, setNodes] = React.useState<NodeType[]>(
+  createNodes(connections)
+);
+console.log(nodes);
+return (
+  <div className={style.wrapper}>
+    <section>
+      <Stage
+        width={SCALE}
+        height={SCALE}
+        options={{ resolution: RESOLUTION, antialias: true }}
+      >
+        <World>
+          <Mouse>
+            <Border />
+            {edges.map(({ source, target }) => {
+              const sourceNode = nodes.find((node) => node.key === source);
+              const targetNode = nodes.find((node) => node.key === target);
+              if (!sourceNode) return null;
+              if (!targetNode) return null;
+              return (
+                <Line
+                  key={\`\${source}-\${target}\`}
+                  x1={sourceNode.position.x}
+                  y1={sourceNode.position.y}
+                  x2={targetNode.position.x}
+                  y2={targetNode.position.y}
+                  color={"#1e1e1e"}
+                />
+              );
+            })}
+            {nodes.map((node) => {
+              return (
+                <React.Fragment key={node.key}>
+                  <Node
+                    x={node.position.x}
+                    y={node.position.y}
+                    radius={20}
+                    setNodes={setNodes}
+                    id={node.key}
                   />
-                );
-              })}
-              {nodes.map((node) => {
-                return (
-                  <React.Fragment key={node.key}>
-                    <Node
-                      x={node.position.x}
-                      y={node.position.y}
-                      radius={20}
-                      setNodes={setNodes}
-                      id={node.key}
-                    />
-                  </React.Fragment>
-                );
-              })}
-            </Mouse>
-          </World>
-        </Stage>
-      </section>
-    </div>
-  );
-};`,
+                </React.Fragment>
+              );
+            })}
+          </Mouse>
+        </World>
+      </Stage>
+    </section>
+  </div>
+);
+};`
+
+<Sandpack 
+customSetup={sandpackCustomSetup}
+options={{
+  activeFile: paths.Graph
+}}
+files={{
+[paths.Border]: border_final,
+[paths.Mouse]: mouse_final,
+[paths.World]: world_final,
+[paths.Graph]: graph_6,
 [paths.Node]: node_final,
 [paths.Line]: line_final,
 ...sandpackFiles.mocks,
@@ -1454,17 +1381,7 @@ code={`
 
 And that's it! We've create a graph similar to the one used in Obsidian.
 
-<Sandpack 
-customSetup={sandpackCustomSetup}
-options={{
-  activeFile: paths.Graph
-}}
-files={{
-[paths.Border]: border_final,
-[paths.Label]: label_final,
-[paths.Mouse]: mouse_final,
-[paths.World]: world_final,
-[paths.Graph]: `import "@pixi/events";
+export const graph_final = `import "@pixi/events";
 
 import { Stage } from "@pixi/react";
 import React from "react";
@@ -1548,7 +1465,19 @@ export const Graph: React.FC = () => {
     </div>
   );
 };
-`,
+`
+
+<Sandpack 
+customSetup={sandpackCustomSetup}
+options={{
+  activeFile: paths.Graph
+}}
+files={{
+[paths.Border]: border_final,
+[paths.Label]: label_final,
+[paths.Mouse]: mouse_final,
+[paths.World]: world_final,
+[paths.Graph]: graph_final,
 [paths.Node]: node_final,
 [paths.Line]: line_final,
 ...sandpackFiles.mocks,
