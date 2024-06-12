@@ -3,10 +3,10 @@ title: Node Graph
 description: A node graph component built with Pixi.js, Matter.js, and React. Allows users to see relationships between nodes and interact with them.
 category: lab
 tags: ['canvas', 'ui', "graph"]
-publishedAt: 2024-05-29
-mainVideo: 'lab/dial/dial-main-video.mp4'
-demo: 'https://joshwrn.github.io/react-dial/'
-repo: 'https://github.com/joshwrn/react-dial'
+publishedAt: 2024-06-11
+mainVideo: 'lab/node-graph/main-video.mp4'
+demo: 'https://codesandbox.io/p/sandbox/vibrant-dewdney-gnn7gw'
+repo: 'https://codesandbox.io/p/sandbox/vibrant-dewdney-gnn7gw'
 ---
 
 export const sandpackCustomSetup = {
@@ -324,7 +324,7 @@ export const Graph: React.FC = () => {
           height={SCALE}
           options={{ resolution: RESOLUTION, antialias: true }}
         >
-          <Node x={SCALE / 2} y={SCALE / 2} radius={5} opacity={1} id={"1"} />
+          <Node x={SCALE / 2} y={SCALE / 2} radius={5} id={"1"} />
         </Stage>
       </section>
     </div>
@@ -388,7 +388,7 @@ export const Graph: React.FC = () => {
           height={SCALE}
           options={{ resolution: RESOLUTION, antialias: true }}
         >
-          <Node x={SCALE / 2} y={SCALE / 2} radius={5} opacity={1} id={"1"} />
+          <Node x={SCALE / 2} y={SCALE / 2} radius={5} id={"1"} />
         </Stage>
       </section>
     </div>
@@ -457,7 +457,6 @@ export const Graph: React.FC = () => {
                 x={node.position.x}
                 y={node.position.y}
                 radius={5}
-                opacity={1}
                 id={node.key}
               />
             )
@@ -599,7 +598,6 @@ export const Graph: React.FC = () => {
                 x={node.position.x}
                 y={node.position.y}
                 radius={5}
-                opacity={1}
                 id={node.key}
               />
             )
