@@ -213,7 +213,16 @@ We're going to build a graph similar to the one Obsidian uses to show relationsh
 
 ## Setup
 
-We're going to need a few packages to get started. We'll be using `pixi.js` and `matter-js` to handle the canvas. For state management I'll be using `atom.io` but any state library will work.
+First, we can start a new react project. You can use any method you like to create a new project. I'd recommend `vite`.
+
+<CodeSnippet
+showLineNumbers={false}
+language="bash"
+title="Create a New Project"
+code={`npx create-vite@latest node-graph`}
+/>
+
+Next, we're going to need a few packages to get started. We'll be using `pixi.js` and `matter-js` to handle the canvas. For state management I'll be using `atom.io` but any state library will work.
 
 <CodeSnippet 
 showLineNumbers={false}
