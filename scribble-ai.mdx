@@ -1,0 +1,42 @@
+---
+title: Scribble AI
+description: An AI-powered drawing app that allows users to iterate on their rough sketches and create new artworks.
+category: project
+tags: ["canvas", "ai", "art"]
+publishedAt: 2024-08-31
+draft: true
+mainVideo: 'projects/scribble-ai/scribble-ai-main-video.mov'
+demo: 'https://scribble-ai-joshw.vercel.app/'
+repo: 'https://github.com/joshwrn/Scribble-AI'
+---
+
+## Motivation
+
+The initial purpose of this site wasn't to create an AI-powered drawing app. It was meant to get some experience with an infinite canvas, element snapping, and svg arrows (those lines that connect different nodes/elements). Eventually, I decided to expand the project to include AI-powered drawings.
+
+Personally, I don't believe purely AI-generated art is really "artwork", but I definitely think from a technical standpoint, it's very impressive. The point of this project was to create a fun expirement with AI and to learn more about how it works. It is not meant to be a "finished" product nor is it meant to be used in a professional setting.
+
+---
+
+## Components
+
+### Windows
+
+The most important component of the app is the window. There are three window types: the generator windows, the generation windows, and the settings windows. 
+
+Generator windows are the main window that users interact with. They are used to create new artworks. They contain the following components:
+- The canvas
+  - The canvas is where the user draws their artwork.
+- The prompt
+  - The prompt is the subject of the artwork. A prompt will be randomly generated for each artwork, but the user can also input their own prompt.
+- The randomize button
+  - The randomize button will randomly generate a new prompt for the artwork.
+
+Generation windows are branches of the generator windows. They are used to generate new artworks based on the prompts of the parent artworks. They contain the following components:
+- The output image
+  - The output image is the final artwork that is generated based on the prompts of the parent artworks.
+- The activate button
+
+
+
+
