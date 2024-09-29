@@ -18,13 +18,18 @@ Personally, I don't believe purely AI-generated art is really "artwork", but I d
 
 ---
 
-## Components
+## Windows
 
-### Windows
+<Image src="https://res.cloudinary.com/db4ddmnhg/image/upload/v1727570641/projects/scribble-ai/windows1_oiw7yl.png" alt={`An example of different windows.`} subText={`An example of different windows.`} width={1117} height={760} />
 
-The most important component of the app is the window. There are three window types: the generator windows, the generation windows, and the settings windows. 
+The most important component of the app is the window. There are three window types: the generator windows, the generation windows, and the settings windows.
+
+### Generators
+
+<Image src="https://res.cloudinary.com/db4ddmnhg/image/upload/v1727570079/projects/scribble-ai/generator_wwurdm.png" alt={`A generator window.`} subText={`A generator window.`} width={1117} height={760} />
 
 Generator windows are the main window that users interact with. They are used to create new artworks. They contain the following components:
+
 - The canvas
   - The canvas is where the user draws their artwork.
 - The prompt
@@ -32,11 +37,33 @@ Generator windows are the main window that users interact with. They are used to
 - The randomize button
   - The randomize button will randomly generate a new prompt for the artwork.
 
+### Generations
+
+<Image src="https://res.cloudinary.com/db4ddmnhg/image/upload/v1727570080/projects/scribble-ai/generation_z3ckqa.png" alt={`A generation window.`} subText={`A generation window.`} width={1115} height={787} />
+
 Generation windows are branches of the generator windows. They are used to generate new artworks based on the prompts of the parent artworks. They contain the following components:
+
 - The output image
   - The output image is the final artwork that is generated based on the prompts of the parent artworks.
 - The activate button
+  - The activate button is used to decide which generation window to draw to. Each generator can only have one active generation window at a time.
+- The modifier prompt
+  - The modifier prompt is used to decide the style of the subject/prompt of the artwork. The default modifier prompt is "watercolor", but the user can also input their own.
 
+### Settings Windows
+
+<Image src="https://res.cloudinary.com/db4ddmnhg/image/upload/v1727570079/projects/scribble-ai/settings_m848xm.png" alt={`A settings window.`} subText={`A settings window.`} width={800} height={547} />
+
+Settings windows are used to adjust the ai parameters of generations/generators they are connected to. They allow for adjusting the following parameters:
+
+- Inference steps
+  - Inference steps is the number of steps the model will take to generate the artwork. A higher number will result in a more detailed artwork, but it will also take longer to generate.
+- Guidance scale
+  - Guidance scale is a value between 0 and 16 that determines how much the model should follow the prompt. A higher value will make the model more confident in its output.
+- Strength
+  - Strength is a value between 0 and 1 that determines how closely the generated artwork will match the sketch. A higher value gives the model more freedom to create the artwork.
+
+---
 
 
 
