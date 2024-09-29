@@ -28,23 +28,23 @@ The most important component of the app is the window. There are two window type
 
 <Image src="https://res.cloudinary.com/db4ddmnhg/image/upload/v1727570079/projects/scribble-ai/generator_wwurdm.png" subText={`A generator window.`} width={1117} height={760} />
 
-Generator windows are the main window that users interact with. They are used to create new artworks. They contain the following components:
+Generator windows are the main window that users interact with. They contain the following components:
 
 - The canvas
-  - The canvas is where the user draws their artwork.
+  - The canvas is where the user draws their sketch.
 - The prompt
-  - The prompt is the subject of the artwork. A prompt will be randomly generated for each artwork, but the user can also input their own prompt.
+  - The prompt is the subject of the sketch. A prompt will be randomly generated for each sketch, but the user can also input their own prompt.
 - The randomize button
-  - The randomize button will randomly generate a new prompt for the artwork.
+  - The randomize button will randomly generate a new prompt.
 
 ### Generations
 
 <Image src="https://res.cloudinary.com/db4ddmnhg/image/upload/v1727570080/projects/scribble-ai/generation_z3ckqa.png" subText={`A generation window.`} width={1115} height={787} />
 
-Generation windows are branches of the generator windows. They are used to generate new artworks based on the prompts of the parent artworks. They contain the following components:
+Generation windows are branches of the generator windows. They are where new artworks will be generated, based on the prompts and sketches of the parent. They contain the following components:
 
 - The output image
-  - The output image is the final artwork that is generated based on the prompts of the parent artworks.
+  - The output image is the final artwork that is generated based on the prompt and sketch of the parent window.
 - The activate button
   - The activate button is used to decide which generation window to draw to. Each generator can only have one active generation window at a time.
 - The modifier prompt
@@ -54,10 +54,10 @@ Generation windows are branches of the generator windows. They are used to gener
 
 <Image src="https://res.cloudinary.com/db4ddmnhg/image/upload/v1727570079/projects/scribble-ai/settings_m848xm.png" subText={`A settings window.`} width={800} height={547} />
 
-Settings nodes are used to adjust the ai parameters of generations/generators they are connected to. The following settings are available:
+Settings nodes are used to adjust the ai parameters of the generations/generators they are connected to. The following settings are available:
 
 - Inference steps
-  - Inference steps is the number of steps the model will take to generate the artwork. A higher number will result in a more detailed artwork, but it will also take longer to generate.
+  - Inference steps is a value between 1 and 12. A higher number will result in a more detailed artwork, but it will also take longer to generate.
 - Guidance scale
   - Guidance scale is a value between 0 and 16 that determines how much the model should follow the prompt. A higher value will make the model more confident in its output.
 - Strength
@@ -67,7 +67,7 @@ Settings nodes are used to adjust the ai parameters of generations/generators th
 
 ## Connections
 
-There are two types of connections, connections betweens generators and generations, and connections between settings nodes and generations/generators.
+There are two types of connections, connections from generators to generations, and connections between settings nodes and generations/generators.
 
 <Image src="https://res.cloudinary.com/db4ddmnhg/image/upload/v1727577169/projects/scribble-ai/connections.png" subText={`An example of multiple connections`} width={1640} height={1314} />
 
@@ -79,7 +79,7 @@ If a settings node is connected to a generator it will affect all of the branche
 
 ## AI
 
-The AI is powered by [fal's](https://fal.ai/) optimized latency model. It's the same model that was used in [tldraw's](https://makereal.tldraw.com/) "make real". Using the model is as simple as passing in a prompt and a link (or base64) to your sketch. You can optionally pass your desired settings as well.
+The AI is powered by [fal's](https://fal.ai/) optimized latency model. It's the same model that was used in [tldraw's](https://makereal.tldraw.com/) "make real" project. Using the model is as simple as passing in a prompt and a link (or base64) to your sketch. You can optionally pass your desired settings as well.
 
 > NOTE: It's not uncommon for the AI to have a cold start. It may take up to a few minutes for the AI to generate the first image. It's also possible I've run out of tokens. If that happens you may need to clone it and enter your own API key.
 
