@@ -5,7 +5,7 @@ category: project
 tags: ["canvas", "ai", "art"]
 publishedAt: 2024-08-31
 draft: true
-mainVideo: 'projects/scribble-ai/scribble-ai-main-video.mov'
+mainVideo: '5x_speed_uohins.mov'
 demo: 'https://scribble-ai-joshw.vercel.app/'
 repo: 'https://github.com/joshwrn/Scribble-AI'
 ---
@@ -20,13 +20,13 @@ Personally, I don't believe purely AI-generated art is really "artwork", but I d
 
 ## Windows
 
-<Image src="https://res.cloudinary.com/db4ddmnhg/image/upload/v1727570641/projects/scribble-ai/windows1_oiw7yl.png" alt={`An example of different windows.`} subText={`An example of different windows.`} width={1117} height={760} />
+<Image src="https://res.cloudinary.com/db4ddmnhg/image/upload/v1727570641/projects/scribble-ai/windows1_oiw7yl.png" subText={`An example of different windows.`} width={1117} height={760} />
 
 The most important component of the app is the window. There are three window types: the generator windows, the generation windows, and the settings windows.
 
 ### Generators
 
-<Image src="https://res.cloudinary.com/db4ddmnhg/image/upload/v1727570079/projects/scribble-ai/generator_wwurdm.png" alt={`A generator window.`} subText={`A generator window.`} width={1117} height={760} />
+<Image src="https://res.cloudinary.com/db4ddmnhg/image/upload/v1727570079/projects/scribble-ai/generator_wwurdm.png" subText={`A generator window.`} width={1117} height={760} />
 
 Generator windows are the main window that users interact with. They are used to create new artworks. They contain the following components:
 
@@ -39,7 +39,7 @@ Generator windows are the main window that users interact with. They are used to
 
 ### Generations
 
-<Image src="https://res.cloudinary.com/db4ddmnhg/image/upload/v1727570080/projects/scribble-ai/generation_z3ckqa.png" alt={`A generation window.`} subText={`A generation window.`} width={1115} height={787} />
+<Image src="https://res.cloudinary.com/db4ddmnhg/image/upload/v1727570080/projects/scribble-ai/generation_z3ckqa.png" subText={`A generation window.`} width={1115} height={787} />
 
 Generation windows are branches of the generator windows. They are used to generate new artworks based on the prompts of the parent artworks. They contain the following components:
 
@@ -50,11 +50,11 @@ Generation windows are branches of the generator windows. They are used to gener
 - The modifier prompt
   - The modifier prompt is used to decide the style of the subject/prompt of the artwork. The default modifier prompt is "watercolor", but the user can also input their own.
 
-### Settings Windows
+## Settings Nodes
 
-<Image src="https://res.cloudinary.com/db4ddmnhg/image/upload/v1727570079/projects/scribble-ai/settings_m848xm.png" alt={`A settings window.`} subText={`A settings window.`} width={800} height={547} />
+<Image src="https://res.cloudinary.com/db4ddmnhg/image/upload/v1727570079/projects/scribble-ai/settings_m848xm.png" subText={`A settings window.`} width={800} height={547} />
 
-Settings windows are used to adjust the ai parameters of generations/generators they are connected to. They allow for adjusting the following parameters:
+Settings nodes are used to adjust the ai parameters of generations/generators they are connected to. The following settings are available:
 
 - Inference steps
   - Inference steps is the number of steps the model will take to generate the artwork. A higher number will result in a more detailed artwork, but it will also take longer to generate.
@@ -65,5 +65,12 @@ Settings windows are used to adjust the ai parameters of generations/generators 
 
 ---
 
+## Connections
 
+There are two types of connections, connections betweens generators and generations, and connections between settings nodes and generations/generators.
 
+<Image src="https://res.cloudinary.com/db4ddmnhg/image/upload/v1727577169/projects/scribble-ai/connections.png" subText={`An example of multiple connections`} width={1640} height={1314} />
+
+Generations can only be connected to one generator. Generators can be connected to multiple generations. Settings nodes can be connected to multiple generations/generators.
+
+If a settings node is connected to a generator it will affect all of the generations branched from that generator. You can override the settings of a generation by directly connecting a settings node to it.
