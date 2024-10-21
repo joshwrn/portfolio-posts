@@ -5,7 +5,7 @@ category: project
 tags: ["canvas", "ai", "art"]
 publishedAt: 2024-08-31
 draft: false
-mainVideo: '/projects/scribble-ai/Timeline_2_nzrcwr.mp4'
+mainVideo: 'projects/scribble-ai/Timeline_2_nzrcwr'
 demo: 'https://scribble-ai-joshw.vercel.app/'
 repo: 'https://github.com/joshwrn/Scribble-AI'
 ---
@@ -20,13 +20,13 @@ Personally, I don't believe purely AI-generated art is really "artwork", but I d
 
 ## Windows
 
-<Image src="https://res.cloudinary.com/db4ddmnhg/image/upload/v1727570641/projects/scribble-ai/windows1_oiw7yl.png" subText={`An example of different windows.`} width={1117} height={760} />
+<CloudImage path="projects/scribble-ai/windows1_oiw7yl.png" subText={`An example of different windows.`} width={1117} height={760} />
 
 The most important component of the app is the window. There are two window types: generators and generations. Let's break down both of them.
 
 ### Generators
 
-<Image src="https://res.cloudinary.com/db4ddmnhg/image/upload/v1727570079/projects/scribble-ai/generator_wwurdm.png" subText={`A generator window.`} width={1117} height={760} />
+<CloudImage path="projects/scribble-ai/generator_wwurdm.png" subText={`A generator window.`} width={1117} height={760} />
 
 Generator windows are the main window that users interact with. They contain the following components:
 
@@ -39,7 +39,7 @@ Generator windows are the main window that users interact with. They contain the
 
 ### Generations
 
-<Image src="https://res.cloudinary.com/db4ddmnhg/image/upload/v1727570080/projects/scribble-ai/generation_z3ckqa.png" subText={`A generation window.`} width={1115} height={787} />
+<CloudImage path="projects/scribble-ai/generation_z3ckqa.png" subText={`A generation window.`} width={1115} height={787} />
 
 Generation windows are branches of the generator windows. They are where new artworks will be generated, based on the prompts and sketches of the parent. They contain the following components:
 
@@ -52,7 +52,7 @@ Generation windows are branches of the generator windows. They are where new art
 
 ## Settings Nodes
 
-<Image src="https://res.cloudinary.com/db4ddmnhg/image/upload/v1727570079/projects/scribble-ai/settings_m848xm.png" subText={`A settings window.`} width={800} height={547} />
+<CloudImage path="projects/scribble-ai/settings_m848xm.png" subText={`A settings window.`} width={800} height={547} />
 
 Settings nodes are used to adjust the ai parameters of the generations/generators they are connected to. The following settings are available:
 
@@ -69,7 +69,7 @@ Settings nodes are used to adjust the ai parameters of the generations/generator
 
 There are two types of connections, connections from generators to generations, and connections between settings nodes and generations/generators.
 
-<Image src="https://res.cloudinary.com/db4ddmnhg/image/upload/v1727577169/projects/scribble-ai/connections.png" subText={`An example of multiple connections`} width={1640} height={1314} />
+<CloudImage path="projects/scribble-ai/connections.png" subText={`An example of multiple connections`} width={1640} height={1314} />
 
 Generations can only be connected to one generator. Generators can be connected to multiple generations. Settings nodes can be connected to multiple generations/generators.
 
